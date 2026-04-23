@@ -36,7 +36,7 @@
     button,input,textarea { font:inherit; } button { cursor:pointer; } a { color:inherit; }
     .app { max-width:var(--content-wide); margin:0 auto; padding:var(--space-4); }
     .topbar,.toolbar,.scanner-controls,.inline-actions,.lookup-meta,.row-actions,.token-row,.price-grid { display:flex; flex-wrap:wrap; gap:var(--space-2); }
-    .topbar { align-items:center; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-2) 0; position:relative; }
+    .topbar { align-items:center; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-3) var(--space-4); position:relative; }
     .brand { display:flex; align-items:center; gap:var(--space-3); font-weight:700; }
     .brand svg { width:42px; height:42px; color:var(--color-primary); }
     .brand-text strong { display:block; font-size:var(--text-sm); letter-spacing:.06em; text-transform:uppercase; }
@@ -99,8 +99,10 @@
       <div class="toolbar">
         <button class="btn btn-ghost" type="button" id="toggle-menu">☰</button>
       </div>
-      <div id="menu-panel" class="menu-panel" style="display:none; position:absolute; top:58px; right:8px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-2); box-shadow:var(--shadow-lg);">
-        <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Switch theme">🌙 Theme</button>
+    </header>
+    <div id="menu-panel" style="display:none; position:absolute; top:100%; right:0; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-2); box-shadow:var(--shadow-lg); min-width:150px;">
+        <button class="btn" type="button" id="open-token">Token</button>
+        <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Switch theme">🌙</button>
         <button class="btn" type="button" id="open-help">Help</button>
         <label class="btn" for="import-file">Import</label>
         <input id="import-file" type="file" accept="application/json" hidden />
@@ -125,7 +127,7 @@
         </article>
         <aside class="panel scan-card">
           <div class="status-pill" id="scanner-status">Scanner idle</div>
-          <div class="camera">
+          <div id="camera" class="camera">
             <video id="scanner-video" playsinline muted></video>
             <div id="interactive" class="viewport"></div>
             <div class="camera-placeholder" id="camera-placeholder"><div><p>Start the camera scanner. If native barcode scanning is unavailable, the app falls back to Quagga2 live scanning.</p></div></div>
@@ -140,7 +142,7 @@
       </section>
 
       <section class="grid" style="margin-bottom: var(--space-4);">
-        <article class="panel token-panel">
+        <article class="panel token-panel" id="token-panel">
           <h2 style="margin:0 0 var(--space-2); font-size: var(--text-lg);">Discogs token</h2>
           <p class="section-note">Enter your Discogs token (stored in browser only)</p>
           <div class="token-row">
@@ -220,7 +222,7 @@
         priceMin: document.getElementById('price-min'), priceMax: document.getElementById('price-max'), priceAvg: document.getElementById('price-avg'), priceCurrency: document.getElementById('price-currency'),
         lookupResult: document.getElementById('lookup-result'), lookupTitle: document.getElementById('lookup-title'), lookupDescription: document.getElementById('lookup-description'), lookupTags: document.getElementById('lookup-tags'), discogsLink: document.getElementById('discogs-link'), useDiscogsData: document.getElementById('use-discogs-data'), lookupRec: document.getElementById('lookup-rec'), lookupMin: document.getElementById('lookup-min'), lookupMax: document.getElementById('lookup-max'), lookupAvg: document.getElementById('lookup-avg'),
         totalItems: document.getElementById('total-items'), totalValue: document.getElementById('total-value'), avgValue: document.getElementById('avg-value'), lastScan: document.getElementById('last-scan'), recordsBody: document.getElementById('records-body'), searchInput: document.getElementById('search-input'),
-        scannerStatus: document.getElementById('scanner-status'), scannerVideo: document.getElementById('scanner-video'), interactive: document.getElementById('interactive'), cameraPlaceholder: document.getElementById('camera-placeholder'), startScan: document.getElementById('start-scan'), stopScan: document.getElementById('stop-scan'), lookupManual: document.getElementById('lookup-manual'), newRecord: document.getElementById('new-record'), exportJson: document.getElementById('export-json'), exportCsv: document.getElementById('export-csv'), importFile: document.getElementById('import-file'), clearAll: document.getElementById('clear-all'), sortDate: document.getElementById('sort-date'), sortValue: document.getElementById('sort-value'), helpDialog: document.getElementById('help-dialog'), openHelp: document.getElementById('open-help'), closeHelp: document.getElementById('close-help'), toastStack: document.getElementById('toast-stack'),
+        scannerStatus: document.getElementById('scanner-status'), scannerVideo: document.getElementById('scanner-video'), interactive: document.getElementById('interactive'), camera: document.getElementById('camera'), cameraPlaceholder: document.getElementById('camera-placeholder'), startScan: document.getElementById('start-scan'), stopScan: document.getElementById('stop-scan'), lookupManual: document.getElementById('lookup-manual'), newRecord: document.getElementById('new-record'), exportJson: document.getElementById('export-json'), exportCsv: document.getElementById('export-csv'), importFile: document.getElementById('import-file'), clearAll: document.getElementById('clear-all'), sortDate: document.getElementById('sort-date'), sortValue: document.getElementById('sort-value'), helpDialog: document.getElementById('help-dialog'), openHelp: document.getElementById('open-help'), closeHelp: document.getElementById('close-help'), toastStack: document.getElementById('toast-stack'),
         discogsToken: document.getElementById('discogs-token'), saveToken: document.getElementById('save-token'), testToken: document.getElementById('test-token'), toggleToken: document.getElementById('toggle-token'), clearToken: document.getElementById('clear-token'), tokenStatus: document.getElementById('token-status')
       };
       const supportsBarcodeDetector = 'BarcodeDetector' in window;
