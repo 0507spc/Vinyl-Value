@@ -7,464 +7,78 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
   <style>
-    :root, [data-theme="light"] {
-      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
-      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
-      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f3f0ec; --color-surface-dynamic: #e6e4df; --color-border: #d4d1ca;
-      --color-text: #28251d; --color-text-muted: #6e6b64; --color-text-inverse: #f9f8f4;
-      --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-highlight: #cedcd8;
-      --color-success: #437a22; --color-error: #a12c7b; --color-warning: #964219;
-      --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
-      --shadow-sm: 0 1px 2px rgb(40 37 29 / 0.06); --shadow-md: 0 10px 24px rgb(40 37 29 / 0.08); --shadow-lg: 0 16px 40px rgb(40 37 29 / 0.12);
-      --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
-      --font-body: 'Satoshi', system-ui, sans-serif;
-      --content-wide: 1240px;
-    }
-    [data-theme="dark"] {
-      --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d; --color-surface-offset: #1d1c1a; --color-border: #393836;
-      --color-text: #cdccca; --color-text-muted: #a9a7a2; --color-text-inverse: #2b2a28;
-      --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-highlight: #313b3b;
-      --color-success: #6daa45; --color-error: #d163a7; --color-warning: #bb653b;
-      --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.2); --shadow-md: 0 10px 24px rgb(0 0 0 / 0.28); --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.36);
-    }
-    * { box-sizing: border-box; }
-    body { margin:0; min-height:100vh; font-family:var(--font-body); font-size:var(--text-base); background:radial-gradient(circle at top right, color-mix(in srgb, var(--color-primary) 9%, transparent), transparent 28%), var(--color-bg); color:var(--color-text); line-height:1.5; }
-    button,input,textarea { font:inherit; } button { cursor:pointer; } a { color:inherit; }
-    .app { max-width:var(--content-wide); margin:0 auto; padding:var(--space-4); }
-    .topbar,.toolbar,.scanner-controls,.inline-actions,.lookup-meta,.row-actions,.token-row,.price-grid { display:flex; flex-wrap:wrap; gap:var(--space-2); }
-    .topbar { align-items:center; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-4) 0; }
-    .brand { display:flex; align-items:center; gap:var(--space-3); font-weight:700; }
-    .brand svg { width:42px; height:42px; color:var(--color-primary); }
-    .brand-text strong { display:block; font-size:var(--text-sm); letter-spacing:.06em; text-transform:uppercase; }
-    .brand-text span { display:block; color:var(--color-text-muted); font-size:var(--text-xs); }
-    .btn { min-height:44px; border-radius:var(--radius-full); border:1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background:var(--color-surface); color:var(--color-text); padding:0 var(--space-4); display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2); transition:all var(--transition-interactive); box-shadow:var(--shadow-sm); }
-    .btn-primary { background:var(--color-primary); color:var(--color-text-inverse); border-color:transparent; }
-    .btn-warning { background:var(--color-warning); color:var(--color-text-inverse); border-color:transparent; }
-    .btn-ghost { background:transparent; box-shadow:none; }
-    .hero,.grid { display:grid; gap:var(--space-4); }
-    .hero { grid-template-columns:1.15fr .85fr; margin-bottom:var(--space-4); }
-    .grid { grid-template-columns:1fr 1fr; align-items:start; }
-    .panel { background:color-mix(in srgb, var(--color-surface) 92%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); backdrop-filter:blur(12px); }
-    .hero-copy,.scan-card,.section,.token-panel { padding:var(--space-6); }
-    .eyebrow { font-size:var(--text-xs); text-transform:uppercase; letter-spacing:.14em; color:var(--color-primary); font-weight:700; }
-    h1 { font-size:var(--text-xl); line-height:1.05; margin:var(--space-3) 0 var(--space-4); max-width:16ch; }
-    .lede,.muted,.section-note,.notice { color:var(--color-text-muted); }
-    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-top:var(--space-6); }
-    .stat,.mini-card { padding:var(--space-4); background:var(--color-surface-2); border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
-    .stat strong,.mini-card strong { display:block; font-size:var(--text-lg); font-variant-numeric:tabular-nums; }
-    .camera { position:relative; border-radius:var(--radius-xl); overflow:hidden; min-height:300px; background:#000; border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
-    #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100%; height:100%; object-fit:cover; }
-    #interactive.viewport,#scanner-video { position:absolute; inset:0; display:none; }
-    #interactive.viewport canvas { position:absolute; inset:0; }
-    .camera-placeholder { position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:var(--space-6); color:#f4f4f4; background:linear-gradient(135deg,#0c0c0c,#1b1b1b); }
-    .status-pill,.tag { display:inline-flex; align-items:center; gap:var(--space-2); border-radius:var(--radius-full); }
-    .status-pill { padding:var(--space-2) var(--space-3); font-size:var(--text-xs); background:var(--color-surface-offset); color:var(--color-text-muted); }
-    .tag { font-size:var(--text-xs); padding:var(--space-1) var(--space-3); background:var(--color-primary-highlight); color:var(--color-primary); }
-    .field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-3); }
-    .field { display:grid; gap:var(--space-2); }
-    .field label { font-size:var(--text-xs); text-transform:uppercase; letter-spacing:.08em; color:var(--color-text-muted); font-weight:700; }
-    .field input,.field textarea { width:100%; min-height:44px; border-radius:var(--radius-md); border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text); padding:0 var(--space-3); }
-    .field textarea { min-height:96px; padding-block:var(--space-3); resize:vertical; }
-    .lookup-result { margin-top:var(--space-4); padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); display:grid; gap:var(--space-3); }
-    .price-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); }
-    .search-row { display:grid; grid-template-columns:1fr auto; gap:var(--space-3); margin-bottom:var(--space-4); }
-    .table-wrap { overflow:auto; border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
-    table { width:100%; border-collapse:collapse; font-size:var(--text-sm); }
-    th,td { padding:var(--space-3); text-align:left; border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); vertical-align:top; }
-    th { position:sticky; top:0; background:var(--color-surface); z-index:1; font-size:var(--text-xs); text-transform:uppercase; letter-spacing:.08em; color:var(--color-text-muted); }
-    .empty { text-align:center; padding:var(--space-8); color:var(--color-text-muted); }
-    .price,.money { font-variant-numeric:tabular-nums; font-weight:700; }
-    .toast-stack { position:fixed; right:var(--space-4); bottom:var(--space-4); display:grid; gap:var(--space-2); z-index:999; }
-    .toast { min-width:260px; max-width:360px; padding:var(--space-3) var(--space-4); border-radius:var(--radius-lg); color:var(--color-text-inverse); box-shadow:var(--shadow-lg); }
-    .toast.success { background:var(--color-success);} .toast.error { background:var(--color-error);} .toast.info { background:var(--color-primary);} .toast.warn { background:var(--color-warning);} 
-    dialog { border:none; border-radius:var(--radius-xl); padding:0; width:min(760px, calc(100vw - 2rem)); background:var(--color-surface); color:var(--color-text); box-shadow:var(--shadow-lg);} dialog::backdrop{ background:rgb(0 0 0 / .45);} .dialog-body{ padding:var(--space-5); display:grid; gap:var(--space-4);} .help-list{ margin:0; padding-left:1.2rem; color:var(--color-text-muted);} 
-    @media (max-width:1100px){ .hero,.grid,.field-grid,.price-grid,.stats{ grid-template-columns:1fr; } }
-    @media (max-width:640px){ .app{ padding:var(--space-3);} .topbar{ align-items:flex-start; flex-direction:column;} .search-row{ grid-template-columns:1fr;} .toolbar{ width:100%; } .toolbar .btn{ flex:1 1 calc(50% - .5rem);} }
+    :root, [data-theme="light"] { --text-xs:clamp(.75rem,.7rem + .25vw,.875rem); --text-sm:clamp(.875rem,.8rem + .35vw,1rem); --text-base:clamp(1rem,.95rem + .25vw,1.125rem); --text-lg:clamp(1.125rem,1rem + .75vw,1.5rem); --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem); --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-6:1.5rem; --space-8:2rem; --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9; --color-surface-offset:#f3f0ec; --color-border:#d4d1ca; --color-text:#28251d; --color-text-muted:#6e6b64; --color-text-inverse:#f9f8f4; --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-highlight:#cedcd8; --color-success:#437a22; --color-error:#a12c7b; --color-warning:#964219; --radius-md:.5rem; --radius-lg:.75rem; --radius-xl:1rem; --radius-full:9999px; --shadow-sm:0 1px 2px rgb(40 37 29 / .06); --shadow-md:0 10px 24px rgb(40 37 29 / .08); --shadow-lg:0 16px 40px rgb(40 37 29 / .12); --font-body:'Satoshi',system-ui,sans-serif; --content-wide:1280px; }
+    [data-theme="dark"] { --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#1d1c1a; --color-border:#393836; --color-text:#cdccca; --color-text-muted:#a9a7a2; --color-text-inverse:#2b2a28; --color-primary:#4f98a3; --color-primary-hover:#227f8b; --color-primary-highlight:#313b3b; --color-success:#6daa45; --color-error:#d163a7; --color-warning:#bb653b; }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:var(--font-body);font-size:var(--text-base);background:radial-gradient(circle at top right,color-mix(in srgb,var(--color-primary) 9%,transparent),transparent 28%),var(--color-bg);color:var(--color-text);line-height:1.5} button,input,textarea{font:inherit} button{cursor:pointer} .app{max-width:var(--content-wide);margin:0 auto;padding:var(--space-4)} .topbar,.toolbar,.scanner-controls,.inline-actions,.lookup-meta,.row-actions,.token-row,.price-grid{display:flex;flex-wrap:wrap;gap:var(--space-2)} .topbar{align-items:center;justify-content:space-between;margin-bottom:var(--space-6);padding:var(--space-4) 0} .brand{display:flex;align-items:center;gap:var(--space-3);font-weight:700} .brand svg{width:42px;height:42px;color:var(--color-primary)} .brand-text strong{display:block;font-size:var(--text-sm);letter-spacing:.06em;text-transform:uppercase} .brand-text span{display:block;color:var(--color-text-muted);font-size:var(--text-xs)} .btn{min-height:44px;border-radius:var(--radius-full);border:1px solid color-mix(in srgb,var(--color-text) 12%,transparent);background:var(--color-surface);color:var(--color-text);padding:0 var(--space-4);display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);box-shadow:var(--shadow-sm)} .btn-primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent} .btn-warning{background:var(--color-warning);color:var(--color-text-inverse);border-color:transparent} .btn-ghost{background:transparent;box-shadow:none} .hero,.grid{display:grid;gap:var(--space-4)} .hero{grid-template-columns:1.15fr .85fr;margin-bottom:var(--space-4)} .grid{grid-template-columns:1fr 1fr;align-items:start} .panel{background:color-mix(in srgb,var(--color-surface) 92%,transparent);border:1px solid color-mix(in srgb,var(--color-text) 10%,transparent);border-radius:var(--radius-xl);box-shadow:var(--shadow-md);backdrop-filter:blur(12px)} .hero-copy,.scan-card,.section,.token-panel{padding:var(--space-6)} .eyebrow{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;color:var(--color-primary);font-weight:700} h1{font-size:var(--text-xl);line-height:1.05;margin:var(--space-3) 0 var(--space-4);max-width:16ch} .lede,.muted,.section-note,.notice{color:var(--color-text-muted)} .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);margin-top:var(--space-6)} .stat,.mini-card{padding:var(--space-4);background:var(--color-surface-2);border-radius:var(--radius-lg);border:1px solid color-mix(in srgb,var(--color-text) 8%,transparent)} .stat strong,.mini-card strong{display:block;font-size:var(--text-lg);font-variant-numeric:tabular-nums} .camera{position:relative;border-radius:var(--radius-xl);overflow:hidden;min-height:300px;background:#000;border:1px solid color-mix(in srgb,var(--color-text) 10%,transparent)} #scanner-video,#interactive.viewport video,#interactive.viewport canvas{width:100%;height:100%;object-fit:cover} #interactive.viewport,#scanner-video{position:absolute;inset:0;display:none} #interactive.viewport canvas{position:absolute;inset:0} .camera-placeholder{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:var(--space-6);color:#f4f4f4;background:linear-gradient(135deg,#0c0c0c,#1b1b1b)} .status-pill,.tag{display:inline-flex;align-items:center;gap:var(--space-2);border-radius:var(--radius-full)} .status-pill{padding:var(--space-2) var(--space-3);font-size:var(--text-xs);background:var(--color-surface-offset);color:var(--color-text-muted)} .tag{font-size:var(--text-xs);padding:.25rem .75rem;background:var(--color-primary-highlight);color:var(--color-primary)} .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)} .field{display:grid;gap:var(--space-2)} .field label{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted);font-weight:700} .field input,.field textarea{width:100%;min-height:44px;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text);padding:0 var(--space-3)} .field textarea{min-height:96px;padding-block:var(--space-3);resize:vertical} .lookup-result{margin-top:var(--space-4);padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface-2);border:1px solid color-mix(in srgb,var(--color-text) 10%,transparent);display:grid;gap:var(--space-3)} .price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3)} .search-row{display:grid;grid-template-columns:1fr auto;gap:var(--space-3);margin-bottom:var(--space-4)} .table-wrap{overflow:auto;border-radius:var(--radius-lg);border:1px solid color-mix(in srgb,var(--color-text) 10%,transparent)} table{width:100%;border-collapse:collapse;font-size:var(--text-sm)} th,td{padding:var(--space-3);text-align:left;border-bottom:1px solid color-mix(in srgb,var(--color-text) 8%,transparent);vertical-align:top} th{position:sticky;top:0;background:var(--color-surface);z-index:1;font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted)} .empty{text-align:center;padding:var(--space-8);color:var(--color-text-muted)} .toast-stack{position:fixed;right:var(--space-4);bottom:var(--space-4);display:grid;gap:var(--space-2);z-index:999} .toast{min-width:260px;max-width:360px;padding:var(--space-3) var(--space-4);border-radius:var(--radius-lg);color:var(--color-text-inverse);box-shadow:var(--shadow-lg)} .toast.success{background:var(--color-success)} .toast.error{background:var(--color-error)} .toast.info{background:var(--color-primary)} .toast.warn{background:var(--color-warning)} dialog{border:none;border-radius:var(--radius-xl);padding:0;width:min(760px,calc(100vw - 2rem));background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-lg)} dialog::backdrop{background:rgb(0 0 0 / .45)} .dialog-body{padding:var(--space-6);display:grid;gap:var(--space-4)} .help-list{margin:0;padding-left:1.2rem;color:var(--color-text-muted)} code{background:var(--color-surface-offset);padding:.15rem .35rem;border-radius:.35rem} @media (max-width:1100px){.hero,.grid,.field-grid,.price-grid,.stats{grid-template-columns:1fr}} @media (max-width:640px){.app{padding:.75rem}.topbar{align-items:flex-start;flex-direction:column}.search-row{grid-template-columns:1fr}.toolbar{width:100%}.toolbar .btn{flex:1 1 calc(50% - .5rem)}}
   </style>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand">
-        <svg viewBox="0 0 64 64" role="img" aria-label="Circular record logo"><circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="6"></circle><circle cx="32" cy="32" r="7" fill="currentColor"></circle><path d="M32 6a26 26 0 0 1 0 52" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"></path></svg>
-        <div class="brand-text"><strong>Vinyl Scan Vault</strong><span>Authenticated Discogs pricing with min, max, avg and VG+</span></div>
-      </div>
-      <div class="toolbar">
-        <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Switch theme">🌙</button>
-        <button class="btn" type="button" id="open-help">How it works</button>
-        <label class="btn" for="import-file">Import JSON</label>
-        <input id="import-file" type="file" accept="application/json" hidden />
-        <button class="btn" type="button" id="export-json">Export JSON</button>
-        <button class="btn" type="button" id="export-csv">Export CSV</button>
-        <button class="btn btn-primary" type="button" id="clear-all">Clear all</button>
-      </div>
+      <div class="brand"><svg viewBox="0 0 64 64" role="img" aria-label="Circular record logo"><circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="6"></circle><circle cx="32" cy="32" r="7" fill="currentColor"></circle><path d="M32 6a26 26 0 0 1 0 52" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"></path></svg><div class="brand-text"><strong>Vinyl Scan Vault</strong><span>Token test, barcode lookup fallback and authenticated pricing</span></div></div>
+      <div class="toolbar"><button class="btn btn-ghost" type="button" data-theme-toggle>🌙</button><button class="btn" type="button" id="open-help">How it works</button><label class="btn" for="import-file">Import JSON</label><input id="import-file" type="file" accept="application/json" hidden /><button class="btn" type="button" id="export-json">Export JSON</button><button class="btn" type="button" id="export-csv">Export CSV</button><button class="btn btn-primary" type="button" id="clear-all">Clear all</button></div>
     </header>
-
     <main>
       <section class="hero">
-        <article class="panel hero-copy">
-          <div class="eyebrow">Discogs token enabled</div>
-          <h1>Scan vinyl, look up release data, and store a real price range from Discogs suggestions.</h1>
-          <p class="lede">This version adds a local-only Discogs personal token setting and stores price minimum, maximum, average, recommended VG+, and full condition suggestions per scanned release.</p>
-          <div class="stats">
-            <div class="stat"><strong id="total-items">0</strong><span>Saved records</span></div>
-            <div class="stat"><strong id="total-value">£0.00</strong><span>Total recommended</span></div>
-            <div class="stat"><strong id="avg-value">£0.00</strong><span>Average recommended</span></div>
-            <div class="stat"><strong id="last-scan">None</strong><span>Most recent scan</span></div>
-          </div>
-        </article>
-        <aside class="panel scan-card">
-          <div class="status-pill" id="scanner-status">Scanner idle</div>
-          <div class="camera">
-            <video id="scanner-video" playsinline muted></video>
-            <div id="interactive" class="viewport"></div>
-            <div class="camera-placeholder" id="camera-placeholder"><div><p>Start the camera scanner. If native barcode scanning is unavailable, the app falls back to Quagga2 live scanning.</p></div></div>
-          </div>
-          <div class="scanner-controls">
-            <button class="btn btn-primary" id="start-scan" type="button">Start camera scan</button>
-            <button class="btn" id="stop-scan" type="button">Stop camera</button>
-            <button class="btn" id="lookup-manual" type="button">Lookup typed barcode</button>
-          </div>
-          <p class="notice">GitHub Pages works fine for this because it is HTTPS. Your token is stored only in your browser unless you export data yourself.</p>
-        </aside>
+        <article class="panel hero-copy"><div class="eyebrow">Lookup hardened</div><h1>Test your Discogs token first, then scan or type a barcode and pull release data with pricing.</h1><p class="lede">This build adds a token test button, normalises barcode search, and falls back from barcode search to a general query search when the strict barcode endpoint does not return a usable match.</p><div class="stats"><div class="stat"><strong id="total-items">0</strong><span>Saved records</span></div><div class="stat"><strong id="total-value">£0.00</strong><span>Total recommended</span></div><div class="stat"><strong id="avg-value">£0.00</strong><span>Average recommended</span></div><div class="stat"><strong id="last-scan">None</strong><span>Most recent scan</span></div></div></article>
+        <aside class="panel scan-card"><div class="status-pill" id="scanner-status">Scanner idle</div><div class="camera"><video id="scanner-video" playsinline muted></video><div id="interactive" class="viewport"></div><div class="camera-placeholder" id="camera-placeholder"><div><p>Start the camera scanner. The app uses native detection when available and Quagga2 when it is not.</p></div></div></div><div class="scanner-controls"><button class="btn btn-primary" id="start-scan" type="button">Start camera scan</button><button class="btn" id="stop-scan" type="button">Stop camera</button><button class="btn" id="lookup-manual" type="button">Lookup typed barcode</button></div><p class="notice">If barcode search fails, the app now retries using a broader Discogs search and compares barcode variants.</p></aside>
       </section>
-
-      <section class="grid" style="margin-bottom: var(--space-4);">
-        <article class="panel token-panel">
-          <h2 style="margin:0 0 var(--space-2); font-size: var(--text-lg);">Discogs token</h2>
-          <p class="section-note">Paste your personal access token from Discogs developer settings. It is stored in local browser storage only and used for authenticated pricing requests with the <code>Authorization: Discogs token=...</code> header.</p>
-          <div class="token-row">
-            <input id="discogs-token" type="password" placeholder="Paste Discogs personal token" style="flex:1; min-height:44px; border-radius:var(--radius-md); border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text); padding:0 var(--space-3);" />
-            <button class="btn btn-primary" type="button" id="save-token">Save token</button>
-            <button class="btn" type="button" id="toggle-token">Show</button>
-            <button class="btn btn-warning" type="button" id="clear-token">Clear token</button>
-          </div>
-          <p class="notice" id="token-status">No token saved yet.</p>
-        </article>
-        <article class="panel token-panel">
-          <h2 style="margin:0 0 var(--space-2); font-size: var(--text-lg);">Pricing model</h2>
-          <p class="section-note">The app stores:</p>
-          <div class="price-grid">
-            <div class="mini-card"><strong>Recommended</strong><span class="muted">VG+ if present, otherwise NM or first value</span></div>
-            <div class="mini-card"><strong>Minimum</strong><span class="muted">Lowest suggested condition price</span></div>
-            <div class="mini-card"><strong>Maximum</strong><span class="muted">Highest suggested condition price</span></div>
-            <div class="mini-card"><strong>Average</strong><span class="muted">Mean of all returned condition prices</span></div>
-          </div>
-        </article>
+      <section class="grid" style="margin-bottom:1rem">
+        <article class="panel token-panel"><h2 style="margin:0 0 .5rem;font-size:var(--text-lg)">Discogs token</h2><p class="section-note">Paste your personal access token. The new test button checks authentication before you try album and price lookup.</p><div class="token-row"><input id="discogs-token" type="password" placeholder="Paste Discogs personal token" style="flex:1; min-height:44px; border-radius:var(--radius-md); border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text); padding:0 1rem;" /><button class="btn btn-primary" type="button" id="save-token">Save token</button><button class="btn" type="button" id="test-token">Test token</button><button class="btn" type="button" id="toggle-token">Show</button><button class="btn btn-warning" type="button" id="clear-token">Clear token</button></div><p class="notice" id="token-status">No token saved yet.</p></article>
+        <article class="panel token-panel"><h2 style="margin:0 0 .5rem;font-size:var(--text-lg)">Lookup status</h2><p class="section-note">The app uses <code>Authorization: Discogs token=...</code> plus a descriptive <code>User-Agent</code>. If barcode-only search does not match, it retries with a broader search query. Discogs marketplace price suggestions still require both a valid token and completed seller settings.</p><div class="price-grid"><div class="mini-card"><strong>Step 1</strong><span class="muted">Barcode match</span></div><div class="mini-card"><strong>Step 2</strong><span class="muted">Fallback query match</span></div><div class="mini-card"><strong>Step 3</strong><span class="muted">Price suggestions</span></div><div class="mini-card"><strong>Step 4</strong><span class="muted">Min, max, avg, VG+</span></div></div></article>
       </section>
-
       <section class="grid">
-        <article class="panel section">
-          <h2 style="margin:0 0 var(--space-2);">Lookup and log</h2>
-          <p class="section-note">Review the Discogs result, adjust it if needed, then save it locally.</p>
-          <form id="record-form">
-            <div class="field-grid">
-              <div class="field"><label for="barcode">Barcode</label><input id="barcode" inputmode="numeric" autocomplete="off" placeholder="e.g. 0602547202697" required /></div>
-              <div class="field"><label for="estimated-value">Recommended value</label><input id="estimated-value" type="number" min="0" step="0.01" placeholder="0.00" /></div>
-              <div class="field"><label for="artist">Artist</label><input id="artist" placeholder="Artist name" /></div>
-              <div class="field"><label for="title">Title</label><input id="title" placeholder="Release title" /></div>
-              <div class="field"><label for="year">Year</label><input id="year" placeholder="Year" /></div>
-              <div class="field"><label for="format">Format</label><input id="format" placeholder="Vinyl, LP, Album" /></div>
-            </div>
-            <div class="price-grid" style="margin-top: var(--space-3);">
-              <div class="field"><label for="price-min">Min</label><input id="price-min" type="number" min="0" step="0.01" placeholder="0.00" /></div>
-              <div class="field"><label for="price-max">Max</label><input id="price-max" type="number" min="0" step="0.01" placeholder="0.00" /></div>
-              <div class="field"><label for="price-avg">Average</label><input id="price-avg" type="number" min="0" step="0.01" placeholder="0.00" /></div>
-              <div class="field"><label for="price-currency">Currency</label><input id="price-currency" placeholder="GBP" /></div>
-            </div>
-            <div class="field" style="margin-top: var(--space-3);"><label for="notes">Notes</label><textarea id="notes" placeholder="Condition, pressing notes, shelf location, or anything else"></textarea></div>
-            <div class="inline-actions" style="margin-top: var(--space-4);"><button class="btn btn-primary" type="submit">Save record</button><button class="btn" type="button" id="new-record">Reset form</button></div>
-          </form>
-          <div class="lookup-result" id="lookup-result" hidden>
-            <div><strong id="lookup-title">No lookup yet</strong><p class="muted" id="lookup-description">Lookup details from Discogs will appear here.</p></div>
-            <div class="lookup-meta" id="lookup-tags"></div>
-            <div class="price-grid">
-              <div class="mini-card"><span class="muted">Recommended</span><strong id="lookup-rec">—</strong></div>
-              <div class="mini-card"><span class="muted">Min</span><strong id="lookup-min">—</strong></div>
-              <div class="mini-card"><span class="muted">Max</span><strong id="lookup-max">—</strong></div>
-              <div class="mini-card"><span class="muted">Average</span><strong id="lookup-avg">—</strong></div>
-            </div>
-            <div class="inline-actions"><button class="btn" type="button" id="use-discogs-data">Use Discogs data</button><a class="btn btn-ghost" id="discogs-link" href="#" target="_blank" rel="noopener noreferrer">Open release</a></div>
-          </div>
-        </article>
-
-        <article class="panel section">
-          <h2 style="margin:0 0 var(--space-2);">Saved collection</h2>
-          <p class="section-note">Search, export, import, and remove saved scans. Recommended value is based on VG+ when available.</p>
-          <div class="search-row"><input id="search-input" type="search" placeholder="Search barcode, artist, title or format" /><div class="inline-actions"><button class="btn" type="button" id="sort-date">Newest first</button><button class="btn" type="button" id="sort-value">Highest value</button></div></div>
-          <div class="table-wrap"><table><thead><tr><th>Record</th><th>Barcode</th><th>Recommended</th><th>Range</th><th>Scanned</th><th>Actions</th></tr></thead><tbody id="records-body"><tr><td colspan="6" class="empty">No records saved yet.</td></tr></tbody></table></div>
-        </article>
+        <article class="panel section"><h2 style="margin:0 0 .5rem">Lookup and log</h2><p class="section-note">Review the Discogs result, adjust if needed, then save it locally.</p><form id="record-form"><div class="field-grid"><div class="field"><label for="barcode">Barcode</label><input id="barcode" inputmode="numeric" autocomplete="off" placeholder="e.g. 0602547202697" required /></div><div class="field"><label for="estimated-value">Recommended value</label><input id="estimated-value" type="number" min="0" step="0.01" placeholder="0.00" /></div><div class="field"><label for="artist">Artist</label><input id="artist" placeholder="Artist name" /></div><div class="field"><label for="title">Title</label><input id="title" placeholder="Release title" /></div><div class="field"><label for="year">Year</label><input id="year" placeholder="Year" /></div><div class="field"><label for="format">Format</label><input id="format" placeholder="Vinyl, LP, Album" /></div></div><div class="price-grid" style="margin-top:.75rem"><div class="field"><label for="price-min">Min</label><input id="price-min" type="number" min="0" step="0.01" placeholder="0.00" /></div><div class="field"><label for="price-max">Max</label><input id="price-max" type="number" min="0" step="0.01" placeholder="0.00" /></div><div class="field"><label for="price-avg">Average</label><input id="price-avg" type="number" min="0" step="0.01" placeholder="0.00" /></div><div class="field"><label for="price-currency">Currency</label><input id="price-currency" placeholder="GBP" /></div></div><div class="field" style="margin-top:.75rem"><label for="notes">Notes</label><textarea id="notes" placeholder="Condition, pressing notes, shelf location, or anything else"></textarea></div><div class="inline-actions" style="margin-top:1rem"><button class="btn btn-primary" type="submit">Save record</button><button class="btn" type="button" id="new-record">Reset form</button></div></form><div class="lookup-result" id="lookup-result" hidden><div><strong id="lookup-title">No lookup yet</strong><p class="muted" id="lookup-description">Lookup details from Discogs will appear here.</p></div><div class="lookup-meta" id="lookup-tags"></div><div class="price-grid"><div class="mini-card"><span class="muted">Recommended</span><strong id="lookup-rec">—</strong></div><div class="mini-card"><span class="muted">Min</span><strong id="lookup-min">—</strong></div><div class="mini-card"><span class="muted">Max</span><strong id="lookup-max">—</strong></div><div class="mini-card"><span class="muted">Average</span><strong id="lookup-avg">—</strong></div></div><div class="inline-actions"><button class="btn" type="button" id="use-discogs-data">Use Discogs data</button><a class="btn btn-ghost" id="discogs-link" href="#" target="_blank" rel="noopener noreferrer">Open release</a></div></div></article>
+        <article class="panel section"><h2 style="margin:0 0 .5rem">Saved collection</h2><p class="section-note">Search, export, import, and remove saved scans.</p><div class="search-row"><input id="search-input" type="search" placeholder="Search barcode, artist, title or format" /><div class="inline-actions"><button class="btn" type="button" id="sort-date">Newest first</button><button class="btn" type="button" id="sort-value">Highest value</button></div></div><div class="table-wrap"><table><thead><tr><th>Record</th><th>Barcode</th><th>Recommended</th><th>Range</th><th>Scanned</th><th>Actions</th></tr></thead><tbody id="records-body"><tr><td colspan="6" class="empty">No records saved yet.</td></tr></tbody></table></div></article>
       </section>
     </main>
   </div>
-
-  <dialog id="help-dialog"><div class="dialog-body"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:start;"><div><h2 style="margin:0 0 .5rem;">How this version works</h2><p class="muted" style="margin:0;">Built for GitHub Pages and personal Discogs tokens.</p></div><button class="btn" id="close-help" type="button">Close</button></div><ol class="help-list"><li>Save your Discogs personal token in the token panel.</li><li>Scan or type a barcode and run lookup.</li><li>The app searches Discogs by barcode, then calls authenticated price suggestions using the release ID.</li><li>It stores recommended, min, max, average, currency and raw condition values for each record.</li><li>Your token is not exported with collection JSON or CSV.</li></ol></div></dialog>
+  <dialog id="help-dialog"><div class="dialog-body"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:start"><div><h2 style="margin:0 0 .5rem">How this version works</h2><p class="muted" style="margin:0">Built for GitHub Pages and personal Discogs tokens.</p></div><button class="btn" id="close-help" type="button">Close</button></div><ol class="help-list"><li>Save your token, then use Test token.</li><li>Type or scan a barcode and run lookup.</li><li>The app first searches Discogs by barcode.</li><li>If that fails, it retries with a broader release search and compares barcode variants without spaces or dashes.</li><li>Once a release ID is found, it requests authenticated price suggestions and stores min, max, average and recommended values.</li></ol></div></dialog>
   <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
-
   <script src="https://unpkg.com/@ericblade/quagga2@1.8.2/dist/quagga.min.js"></script>
   <script>
     (() => {
-      const STORAGE_KEY = 'vinyl-scan-vault-records';
-      const TOKEN_KEY = 'vinyl-scan-vault-discogs-token';
-      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, sortMode: 'date', searchTerm: '', quaggaRunning: false };
-      const els = {
-        html: document.documentElement, themeToggle: document.querySelector('[data-theme-toggle]'), form: document.getElementById('record-form'),
-        barcode: document.getElementById('barcode'), estimatedValue: document.getElementById('estimated-value'), artist: document.getElementById('artist'), title: document.getElementById('title'), year: document.getElementById('year'), format: document.getElementById('format'), notes: document.getElementById('notes'),
-        priceMin: document.getElementById('price-min'), priceMax: document.getElementById('price-max'), priceAvg: document.getElementById('price-avg'), priceCurrency: document.getElementById('price-currency'),
-        lookupResult: document.getElementById('lookup-result'), lookupTitle: document.getElementById('lookup-title'), lookupDescription: document.getElementById('lookup-description'), lookupTags: document.getElementById('lookup-tags'), discogsLink: document.getElementById('discogs-link'), useDiscogsData: document.getElementById('use-discogs-data'), lookupRec: document.getElementById('lookup-rec'), lookupMin: document.getElementById('lookup-min'), lookupMax: document.getElementById('lookup-max'), lookupAvg: document.getElementById('lookup-avg'),
-        totalItems: document.getElementById('total-items'), totalValue: document.getElementById('total-value'), avgValue: document.getElementById('avg-value'), lastScan: document.getElementById('last-scan'), recordsBody: document.getElementById('records-body'), searchInput: document.getElementById('search-input'),
-        scannerStatus: document.getElementById('scanner-status'), scannerVideo: document.getElementById('scanner-video'), interactive: document.getElementById('interactive'), cameraPlaceholder: document.getElementById('camera-placeholder'), startScan: document.getElementById('start-scan'), stopScan: document.getElementById('stop-scan'), lookupManual: document.getElementById('lookup-manual'), newRecord: document.getElementById('new-record'), exportJson: document.getElementById('export-json'), exportCsv: document.getElementById('export-csv'), importFile: document.getElementById('import-file'), clearAll: document.getElementById('clear-all'), sortDate: document.getElementById('sort-date'), sortValue: document.getElementById('sort-value'), helpDialog: document.getElementById('help-dialog'), openHelp: document.getElementById('open-help'), closeHelp: document.getElementById('close-help'), toastStack: document.getElementById('toast-stack'),
-        discogsToken: document.getElementById('discogs-token'), saveToken: document.getElementById('save-token'), toggleToken: document.getElementById('toggle-token'), clearToken: document.getElementById('clear-token'), tokenStatus: document.getElementById('token-status')
-      };
-      const supportsBarcodeDetector = 'BarcodeDetector' in window;
-      let detector = null;
-      if (supportsBarcodeDetector) { try { detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] }); } catch (e) { detector = null; } }
-
-      const applyTheme = theme => { els.html.setAttribute('data-theme', theme); els.themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙'; };
-      const showToast = (message, type='info') => { const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=message; els.toastStack.appendChild(t); setTimeout(()=>t.remove(), 3400); };
-      const formatCurrency = (value, currency='GBP') => new Intl.NumberFormat('en-GB', { style:'currency', currency: currency || 'GBP' }).format(Number(value || 0));
-      const formatNumber = value => Number(value || 0).toFixed(2);
-      const formatDate = value => value ? new Intl.DateTimeFormat('en-GB', { dateStyle:'medium', timeStyle:'short' }).format(new Date(value)) : '—';
-      const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
-      const tokenHeaders = () => {
-        const token = localStorage.getItem(TOKEN_KEY) || '';
-        return token ? { 'Authorization': `Discogs token=${token}` } : {};
-      };
-
-      function initTheme(){ applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); els.themeToggle.addEventListener('click', ()=>applyTheme(els.html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')); }
-      function loadRecords(){ try { state.records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { state.records = []; } }
-      function saveRecords(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records)); }
-      function loadToken(){ const token = localStorage.getItem(TOKEN_KEY) || ''; els.discogsToken.value = token; updateTokenStatus(); }
-      function updateTokenStatus(){ const token = localStorage.getItem(TOKEN_KEY) || ''; els.tokenStatus.textContent = token ? `Token saved locally (${token.slice(0,4)}••••${token.slice(-4)}).` : 'No token saved yet.'; }
-      function updateStats(){
-        els.totalItems.textContent = String(state.records.length);
-        const total = state.records.reduce((sum,item)=>sum + Number(item.recommendedValue || item.estimatedValue || 0), 0);
-        const avg = state.records.length ? total / state.records.length : 0;
-        els.totalValue.textContent = formatCurrency(total, state.records[0]?.priceCurrency || 'GBP');
-        els.avgValue.textContent = formatCurrency(avg, state.records[0]?.priceCurrency || 'GBP');
-        els.lastScan.textContent = state.records.length ? new Date(state.records[0].savedAt).toLocaleDateString('en-GB') : 'None';
-      }
-      function filteredRecords(){
-        const q = state.searchTerm.trim().toLowerCase();
-        let items = [...state.records];
-        if(q){ items = items.filter(item => [item.barcode,item.artist,item.title,item.format,item.year,item.notes].some(v => String(v || '').toLowerCase().includes(q))); }
-        items.sort(state.sortMode==='value' ? (a,b)=>Number(b.recommendedValue || b.estimatedValue || 0)-Number(a.recommendedValue || a.estimatedValue || 0) : (a,b)=>new Date(b.savedAt)-new Date(a.savedAt));
-        return items;
-      }
-      function renderTable(){
-        const items = filteredRecords();
-        if(!items.length){ els.recordsBody.innerHTML = '<tr><td colspan="6" class="empty">No matching records found.</td></tr>'; updateStats(); return; }
-        els.recordsBody.innerHTML = items.map(item => `
-          <tr>
-            <td><strong>${escapeHtml(item.artist || 'Unknown artist')} — ${escapeHtml(item.title || 'Untitled release')}</strong><br><span class="muted">${escapeHtml(item.format || 'Format unknown')} ${item.year ? `· ${escapeHtml(item.year)}` : ''}</span></td>
-            <td>${escapeHtml(item.barcode || '—')}</td>
-            <td class="price">${item.priceCurrency ? formatCurrency(item.recommendedValue || item.estimatedValue || 0, item.priceCurrency) : formatNumber(item.recommendedValue || item.estimatedValue || 0)}</td>
-            <td><span class="muted">${item.priceCurrency || ''} ${formatNumber(item.priceMin || 0)} - ${formatNumber(item.priceMax || 0)}</span></td>
-            <td><span class="muted">${formatDate(item.savedAt)}</span></td>
-            <td><div class="row-actions"><button class="btn btn-ghost" type="button" data-action="edit" data-id="${item.id}">Edit</button><button class="btn btn-ghost" type="button" data-action="delete" data-id="${item.id}">Delete</button></div></td>
-          </tr>`).join('');
-        updateStats();
-      }
-      function resetForm(){ els.form.reset(); state.currentLookup = null; els.lookupResult.hidden = true; delete els.form.dataset.editingId; }
-      function fillForm(record){
-        els.barcode.value = record.barcode || '';
-        els.estimatedValue.value = record.recommendedValue ?? record.estimatedValue ?? '';
-        els.artist.value = record.artist || '';
-        els.title.value = record.title || '';
-        els.year.value = record.year || '';
-        els.format.value = record.format || '';
-        els.notes.value = record.notes || '';
-        els.priceMin.value = record.priceMin ?? '';
-        els.priceMax.value = record.priceMax ?? '';
-        els.priceAvg.value = record.priceAvg ?? '';
-        els.priceCurrency.value = record.priceCurrency || '';
-      }
-      function inferArtist(result){ if(Array.isArray(result?.artist)) return result.artist.join(', '); if(typeof result?.title === 'string' && result.title.includes(' - ')) return result.title.split(' - ')[0]; return result?.artist || ''; }
-      function getCommonHeaders(){ return { 'Accept':'application/json', 'User-Agent':'VinylScanVault/1.0 (+GitHub Pages)' , ...tokenHeaders() }; }
-      function computeSuggestions(raw){
-        const entries = Object.entries(raw || {}).filter(([,value]) => value && value.value != null).map(([condition, value]) => ({ condition, currency: value.currency || '', value: Number(value.value) })).filter(entry => Number.isFinite(entry.value));
-        if(!entries.length) return null;
-        const values = entries.map(entry => entry.value);
-        const recommended = entries.find(entry => entry.condition === 'Very Good Plus (VG+)') || entries.find(entry => entry.condition === 'Near Mint (NM or M-)') || entries[0];
-        return {
-          recommendedValue: recommended.value,
-          recommendedCondition: recommended.condition,
-          priceMin: Math.min(...values),
-          priceMax: Math.max(...values),
-          priceAvg: values.reduce((sum,v)=>sum+v,0) / values.length,
-          priceCurrency: recommended.currency || entries[0].currency || 'GBP',
-          priceSuggestions: raw
-        };
-      }
-      async function fetchPriceSuggestions(releaseId){
-        const token = localStorage.getItem(TOKEN_KEY) || '';
-        if(!token) throw new Error('Save a Discogs token first to retrieve price suggestions.');
-        const response = await fetch(`https://api.discogs.com/marketplace/price_suggestions/${releaseId}`, { headers: getCommonHeaders() });
-        if(response.status === 401 || response.status === 403) throw new Error('Discogs rejected the token or seller settings are incomplete.');
-        if(!response.ok) throw new Error('Discogs price lookup failed.');
-        const data = await response.json();
-        const computed = computeSuggestions(data);
-        if(!computed) throw new Error('No price suggestions returned for this release.');
-        return computed;
-      }
-      async function lookupBarcode(barcode){
-        if(!barcode){ showToast('Enter a barcode before lookup.','error'); return; }
-        els.lookupManual.disabled = true; els.lookupManual.textContent = 'Looking up…';
-        try {
-          const searchResponse = await fetch(`https://api.discogs.com/database/search?barcode=${encodeURIComponent(barcode)}&type=release&per_page=10`, { headers: getCommonHeaders() });
-          if(!searchResponse.ok) throw new Error('Discogs search failed.');
-          const searchData = await searchResponse.json();
-          const result = (searchData.results || []).find(item => Array.isArray(item.barcode) && item.barcode.includes(barcode)) || (searchData.results || [])[0];
-          if(!result) throw new Error('No Discogs match found.');
-          const pricing = result.id ? await fetchPriceSuggestions(result.id) : null;
-          state.currentLookup = {
-            barcode,
-            releaseId: result.id || '',
-            title: result.title || '',
-            artist: inferArtist(result),
-            year: result.year || '',
-            format: Array.isArray(result.format) ? result.format.join(', ') : (result.format || ''),
-            uri: result.uri ? `https://www.discogs.com${result.uri}` : (result.resource_url || '#'),
-            country: result.country || '',
-            label: Array.isArray(result.label) ? result.label.join(', ') : (result.label || ''),
-            ...(pricing || {})
-          };
-          renderLookup();
-          fillForm(state.currentLookup);
-          showToast('Discogs match and price suggestions loaded.', 'success');
-        } catch(error){ console.error(error); showToast(error.message || 'Lookup failed.','error'); }
-        finally { els.lookupManual.disabled = false; els.lookupManual.textContent = 'Lookup typed barcode'; }
-      }
-      function renderLookup(){
-        if(!state.currentLookup){ els.lookupResult.hidden = true; return; }
-        const item = state.currentLookup;
-        els.lookupResult.hidden = false;
-        els.lookupTitle.textContent = item.title || 'Discogs result';
-        els.lookupDescription.textContent = `${item.artist || 'Unknown artist'}${item.year ? ` · ${item.year}` : ''}${item.label ? ` · ${item.label}` : ''}`;
-        els.lookupTags.innerHTML = [item.format ? `<span class="tag">${escapeHtml(item.format)}</span>` : '', item.country ? `<span class="tag">${escapeHtml(item.country)}</span>` : '', item.recommendedCondition ? `<span class="tag">${escapeHtml(item.recommendedCondition)}</span>` : '', item.releaseId ? `<span class="tag">Release #${escapeHtml(item.releaseId)}</span>` : ''].join('');
-        els.lookupRec.textContent = item.recommendedValue != null ? formatCurrency(item.recommendedValue, item.priceCurrency) : '—';
-        els.lookupMin.textContent = item.priceMin != null ? formatCurrency(item.priceMin, item.priceCurrency) : '—';
-        els.lookupMax.textContent = item.priceMax != null ? formatCurrency(item.priceMax, item.priceCurrency) : '—';
-        els.lookupAvg.textContent = item.priceAvg != null ? formatCurrency(item.priceAvg, item.priceCurrency) : '—';
-        els.discogsLink.href = item.uri || '#';
-      }
-      async function startNativeScanner(){
-        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
-        els.scannerVideo.srcObject = state.stream; await els.scannerVideo.play(); els.scannerVideo.style.display='block'; els.cameraPlaceholder.hidden=true; els.scannerStatus.textContent='Camera active — native detector';
-        const scanFrame = async () => {
-          if(!state.stream || !detector) return;
-          try { const hits = await detector.detect(els.scannerVideo); const hit = hits.find(code=>code.rawValue); if(hit?.rawValue){ els.barcode.value=hit.rawValue; stopScanner(); await lookupBarcode(hit.rawValue); return; } } catch(e) {}
-          state.scanLoop = requestAnimationFrame(scanFrame);
-        };
-        scanFrame();
-      }
-      function startQuaggaScanner(){
-        return new Promise((resolve,reject)=>{
-          els.interactive.style.display='block'; els.cameraPlaceholder.hidden=true; els.scannerStatus.textContent='Camera active — Quagga2 scanner';
-          Quagga.init({
-            inputStream: { type:'LiveStream', target: els.interactive, constraints: { facingMode:'environment', width:{ ideal:1280 }, height:{ ideal:720 } } },
-            locator: { patchSize:'medium', halfSample:true }, numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2, frequency: 10,
-            decoder: { readers: ['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader'] }, locate: true
-          }, err => {
-            if(err){ reject(err); return; }
-            state.quaggaRunning = true; Quagga.start();
-            const onDetected = async data => { const code=data?.codeResult?.code; if(!code) return; Quagga.offDetected(onDetected); els.barcode.value=code; stopScanner(); await lookupBarcode(code); };
-            state.quaggaHandler = onDetected; Quagga.onDetected(onDetected); resolve();
-          });
-        });
-      }
-      async function startScanner(){
-        if(!navigator.mediaDevices?.getUserMedia){ showToast('Camera access is not available in this browser.','error'); return; }
-        try { if(detector){ await startNativeScanner(); } else if(window.Quagga){ await startQuaggaScanner(); showToast('Using Quagga2 live scanner fallback.','info'); } else { throw new Error('Scanner library did not load.'); } }
-        catch(error){ console.error(error); showToast('Could not start the camera scanner.','error'); stopScanner(); }
-      }
-      function stopScanner(){
-        if(state.scanLoop) cancelAnimationFrame(state.scanLoop); state.scanLoop = null;
-        if(state.stream){ state.stream.getTracks().forEach(track=>track.stop()); state.stream = null; }
-        if(state.quaggaRunning && window.Quagga){ try { if(state.quaggaHandler) Quagga.offDetected(state.quaggaHandler); Quagga.stop(); } catch(e) {} }
-        state.quaggaRunning = false; state.quaggaHandler = null;
-        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.scannerVideo.style.display = 'none'; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.hidden=false; els.scannerStatus.textContent='Scanner idle';
-      }
-      function buildRecord(existingId=null){
-        return {
-          id: existingId || crypto.randomUUID(),
-          barcode: els.barcode.value.trim(),
-          releaseId: state.currentLookup?.releaseId || '',
-          recommendedValue: Number(els.estimatedValue.value || 0),
-          estimatedValue: Number(els.estimatedValue.value || 0),
-          priceMin: Number(els.priceMin.value || 0),
-          priceMax: Number(els.priceMax.value || 0),
-          priceAvg: Number(els.priceAvg.value || 0),
-          priceCurrency: els.priceCurrency.value.trim() || 'GBP',
-          recommendedCondition: state.currentLookup?.recommendedCondition || 'Manual',
-          priceSuggestions: state.currentLookup?.priceSuggestions || null,
-          artist: els.artist.value.trim(),
-          title: els.title.value.trim(),
-          year: els.year.value.trim(),
-          format: els.format.value.trim(),
-          notes: els.notes.value.trim(),
-          sourceUrl: state.currentLookup?.uri || '',
-          savedAt: new Date().toISOString()
-        };
-      }
-      function triggerDownload(blob, filename){ const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href=url; link.download=filename; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url); }
-      function exportJson(){
-        const safe = state.records.map(({ /* token intentionally excluded */ ...item }) => item);
-        triggerDownload(new Blob([JSON.stringify(safe, null, 2)], { type:'application/json' }), `vinyl-scan-vault-${new Date().toISOString().slice(0,10)}.json`);
-      }
-      function csvEscape(value){ const text=String(value ?? ''); return /[",\n]/.test(text) ? `"${text.replace(/"/g,'""')}"` : text; }
-      function exportCsv(){
-        const headers=['id','barcode','releaseId','artist','title','year','format','recommendedValue','recommendedCondition','priceMin','priceMax','priceAvg','priceCurrency','notes','sourceUrl','savedAt'];
-        const rows=state.records.map(item=>headers.map(key=>csvEscape(item[key])));
-        triggerDownload(new Blob([[headers.join(','), ...rows.map(r=>r.join(','))].join('\n')], { type:'text/csv;charset=utf-8' }), `vinyl-scan-vault-${new Date().toISOString().slice(0,10)}.csv`);
-      }
-      function importJsonFile(file){
-        const reader = new FileReader();
-        reader.onload = () => {
-          try {
-            const parsed = JSON.parse(reader.result);
-            if(!Array.isArray(parsed)) throw new Error('JSON file must contain an array of records.');
-            state.records = parsed.map(item => ({ id:item.id || crypto.randomUUID(), barcode:item.barcode || '', releaseId:item.releaseId || '', recommendedValue:Number(item.recommendedValue || item.estimatedValue || 0), estimatedValue:Number(item.estimatedValue || item.recommendedValue || 0), priceMin:Number(item.priceMin || 0), priceMax:Number(item.priceMax || 0), priceAvg:Number(item.priceAvg || 0), priceCurrency:item.priceCurrency || 'GBP', recommendedCondition:item.recommendedCondition || 'Manual', priceSuggestions:item.priceSuggestions || null, artist:item.artist || '', title:item.title || '', year:item.year || '', format:item.format || '', notes:item.notes || '', sourceUrl:item.sourceUrl || '', savedAt:item.savedAt || new Date().toISOString() }));
-            saveRecords(); renderTable(); showToast('Import complete.','success');
-          } catch(error){ showToast(error.message || 'Import failed.','error'); }
-        };
-        reader.readAsText(file);
-      }
-      function wireEvents(){
-        els.lookupManual.addEventListener('click', ()=>lookupBarcode(els.barcode.value.trim()));
-        els.form.addEventListener('submit', event => {
-          event.preventDefault();
-          const id = els.form.dataset.editingId || null;
-          const record = buildRecord(id);
-          if(!record.barcode){ showToast('Barcode is required.','error'); return; }
-          if(id){ state.records = state.records.map(item => item.id === id ? record : item); showToast('Record updated.','success'); }
-          else { state.records.unshift(record); showToast('Record saved locally.','success'); }
-          saveRecords(); renderTable(); resetForm();
-        });
-        els.useDiscogsData.addEventListener('click', ()=>{ if(!state.currentLookup) return; fillForm(state.currentLookup); showToast('Discogs data copied into the form.','info'); });
-        els.newRecord.addEventListener('click', resetForm);
-        els.recordsBody.addEventListener('click', event => {
-          const button = event.target.closest('button[data-action]'); if(!button) return;
-          const record = state.records.find(item => item.id === button.dataset.id); if(!record) return;
-          if(button.dataset.action === 'delete'){ state.records = state.records.filter(item => item.id !== record.id); saveRecords(); renderTable(); showToast('Record removed.','info'); }
-          if(button.dataset.action === 'edit'){ fillForm(record); els.form.dataset.editingId = record.id; window.scrollTo({ top:0, behavior:'smooth' }); showToast('Editing selected record.','info'); }
-        });
-        els.searchInput.addEventListener('input', event => { state.searchTerm = event.target.value; renderTable(); });
-        els.sortDate.addEventListener('click', ()=>{ state.sortMode = 'date'; renderTable(); });
-        els.sortValue.addEventListener('click', ()=>{ state.sortMode = 'value'; renderTable(); });
-        els.exportJson.addEventListener('click', exportJson); els.exportCsv.addEventListener('click', exportCsv);
-        els.importFile.addEventListener('change', event => { const [file] = event.target.files || []; if(file) importJsonFile(file); event.target.value=''; });
-        els.clearAll.addEventListener('click', ()=>{ if(!confirm('Delete every saved record from this browser?')) return; state.records=[]; saveRecords(); renderTable(); showToast('All local records cleared.','info'); });
-        els.startScan.addEventListener('click', startScanner); els.stopScan.addEventListener('click', stopScanner);
-        els.openHelp.addEventListener('click', ()=>els.helpDialog.showModal()); els.closeHelp.addEventListener('click', ()=>els.helpDialog.close());
-        els.saveToken.addEventListener('click', ()=>{ const token = els.discogsToken.value.trim(); if(!token){ showToast('Paste a token first.','warn'); return; } localStorage.setItem(TOKEN_KEY, token); updateTokenStatus(); showToast('Discogs token saved locally.','success'); });
-        els.toggleToken.addEventListener('click', ()=>{ const isPassword = els.discogsToken.type === 'password'; els.discogsToken.type = isPassword ? 'text' : 'password'; els.toggleToken.textContent = isPassword ? 'Hide' : 'Show'; });
-        els.clearToken.addEventListener('click', ()=>{ localStorage.removeItem(TOKEN_KEY); els.discogsToken.value=''; updateTokenStatus(); showToast('Discogs token removed.','info'); });
-      }
+      const STORAGE_KEY='vinyl-scan-vault-records'; const TOKEN_KEY='vinyl-scan-vault-discogs-token';
+      const state={records:[],currentLookup:null,stream:null,scanLoop:null,sortMode:'date',searchTerm:'',quaggaRunning:false};
+      const els={html:document.documentElement,themeToggle:document.querySelector('[data-theme-toggle]'),form:document.getElementById('record-form'),barcode:document.getElementById('barcode'),estimatedValue:document.getElementById('estimated-value'),artist:document.getElementById('artist'),title:document.getElementById('title'),year:document.getElementById('year'),format:document.getElementById('format'),notes:document.getElementById('notes'),priceMin:document.getElementById('price-min'),priceMax:document.getElementById('price-max'),priceAvg:document.getElementById('price-avg'),priceCurrency:document.getElementById('price-currency'),lookupResult:document.getElementById('lookup-result'),lookupTitle:document.getElementById('lookup-title'),lookupDescription:document.getElementById('lookup-description'),lookupTags:document.getElementById('lookup-tags'),discogsLink:document.getElementById('discogs-link'),useDiscogsData:document.getElementById('use-discogs-data'),lookupRec:document.getElementById('lookup-rec'),lookupMin:document.getElementById('lookup-min'),lookupMax:document.getElementById('lookup-max'),lookupAvg:document.getElementById('lookup-avg'),totalItems:document.getElementById('total-items'),totalValue:document.getElementById('total-value'),avgValue:document.getElementById('avg-value'),lastScan:document.getElementById('last-scan'),recordsBody:document.getElementById('records-body'),searchInput:document.getElementById('search-input'),scannerStatus:document.getElementById('scanner-status'),scannerVideo:document.getElementById('scanner-video'),interactive:document.getElementById('interactive'),cameraPlaceholder:document.getElementById('camera-placeholder'),startScan:document.getElementById('start-scan'),stopScan:document.getElementById('stop-scan'),lookupManual:document.getElementById('lookup-manual'),newRecord:document.getElementById('new-record'),exportJson:document.getElementById('export-json'),exportCsv:document.getElementById('export-csv'),importFile:document.getElementById('import-file'),clearAll:document.getElementById('clear-all'),sortDate:document.getElementById('sort-date'),sortValue:document.getElementById('sort-value'),helpDialog:document.getElementById('help-dialog'),openHelp:document.getElementById('open-help'),closeHelp:document.getElementById('close-help'),toastStack:document.getElementById('toast-stack'),discogsToken:document.getElementById('discogs-token'),saveToken:document.getElementById('save-token'),testToken:document.getElementById('test-token'),toggleToken:document.getElementById('toggle-token'),clearToken:document.getElementById('clear-token'),tokenStatus:document.getElementById('token-status')};
+      const supportsBarcodeDetector='BarcodeDetector' in window; let detector=null; if(supportsBarcodeDetector){ try{ detector=new BarcodeDetector({ formats:['ean_13','ean_8','upc_a','upc_e','code_128'] }); } catch(e){ detector=null; } }
+      const normalizeBarcode=value=>String(value||'').replace(/[^0-9A-Za-z]/g,'').trim();
+      const applyTheme=theme=>{ els.html.setAttribute('data-theme',theme); els.themeToggle.textContent=theme==='dark'?'☀️':'🌙'; };
+      const showToast=(message,type='info')=>{ const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=message; els.toastStack.appendChild(t); setTimeout(()=>t.remove(),3600); };
+      const formatCurrency=(value,currency='GBP')=>new Intl.NumberFormat('en-GB',{style:'currency',currency:currency||'GBP'}).format(Number(value||0));
+      const formatDate=value=>value?new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value)):'—';
+      const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char]));
+      const tokenHeaders=()=>{ const token=localStorage.getItem(TOKEN_KEY)||''; return token ? { Authorization:`Discogs token=${token}` } : {}; };
+      const baseHeaders=()=>({ Accept:'application/json','User-Agent':'VinylScanVault/1.0 (+GitHub Pages)',...tokenHeaders() });
+      function initTheme(){ applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'); els.themeToggle.addEventListener('click',()=>applyTheme(els.html.getAttribute('data-theme')==='dark'?'light':'dark')); }
+      function loadRecords(){ try{ state.records=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch{ state.records=[]; } }
+      function saveRecords(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state.records)); }
+      function loadToken(){ const token=localStorage.getItem(TOKEN_KEY)||''; els.discogsToken.value=token; updateTokenStatus(); }
+      function updateTokenStatus(){ const token=localStorage.getItem(TOKEN_KEY)||''; els.tokenStatus.textContent=token?`Token saved locally (${token.slice(0,4)}••••${token.slice(-4)}). Use Test token to verify access.`:'No token saved yet.'; }
+      function updateStats(){ els.totalItems.textContent=String(state.records.length); const total=state.records.reduce((sum,item)=>sum+Number(item.recommendedValue||0),0); const avg=state.records.length?total/state.records.length:0; const currency=state.records[0]?.priceCurrency||'GBP'; els.totalValue.textContent=formatCurrency(total,currency); els.avgValue.textContent=formatCurrency(avg,currency); els.lastScan.textContent=state.records.length?new Date(state.records[0].savedAt).toLocaleDateString('en-GB'):'None'; }
+      function filteredRecords(){ const q=state.searchTerm.trim().toLowerCase(); let items=[...state.records]; if(q){ items=items.filter(item=>[item.barcode,item.artist,item.title,item.format,item.year,item.notes].some(v=>String(v||'').toLowerCase().includes(q))); } items.sort(state.sortMode==='value'?(a,b)=>Number(b.recommendedValue||0)-Number(a.recommendedValue||0):(a,b)=>new Date(b.savedAt)-new Date(a.savedAt)); return items; }
+      function renderTable(){ const items=filteredRecords(); if(!items.length){ els.recordsBody.innerHTML='<tr><td colspan="6" class="empty">No matching records found.</td></tr>'; updateStats(); return; } els.recordsBody.innerHTML=items.map(item=>`<tr><td><strong>${escapeHtml(item.artist||'Unknown artist')} — ${escapeHtml(item.title||'Untitled release')}</strong><br><span class="muted">${escapeHtml(item.format||'Format unknown')} ${item.year?`· ${escapeHtml(item.year)}`:''}</span></td><td>${escapeHtml(item.barcode||'—')}</td><td>${formatCurrency(item.recommendedValue||0,item.priceCurrency||'GBP')}</td><td><span class="muted">${item.priceCurrency||'GBP'} ${Number(item.priceMin||0).toFixed(2)} - ${Number(item.priceMax||0).toFixed(2)}</span></td><td><span class="muted">${formatDate(item.savedAt)}</span></td><td><div class="row-actions"><button class="btn btn-ghost" type="button" data-action="edit" data-id="${item.id}">Edit</button><button class="btn btn-ghost" type="button" data-action="delete" data-id="${item.id}">Delete</button></div></td></tr>`).join(''); updateStats(); }
+      function resetForm(){ els.form.reset(); state.currentLookup=null; els.lookupResult.hidden=true; delete els.form.dataset.editingId; }
+      function fillForm(record){ els.barcode.value=record.barcode||''; els.estimatedValue.value=record.recommendedValue??''; els.artist.value=record.artist||''; els.title.value=record.title||''; els.year.value=record.year||''; els.format.value=record.format||''; els.notes.value=record.notes||''; els.priceMin.value=record.priceMin??''; els.priceMax.value=record.priceMax??''; els.priceAvg.value=record.priceAvg??''; els.priceCurrency.value=record.priceCurrency||''; }
+      function inferArtist(result){ if(Array.isArray(result?.artist)) return result.artist.join(', '); if(typeof result?.title==='string'&&result.title.includes(' - ')) return result.title.split(' - ')[0]; return result?.artist||''; }
+      function computeSuggestions(raw){ const entries=Object.entries(raw||{}).filter(([,value])=>value&&value.value!=null).map(([condition,value])=>({condition,currency:value.currency||'',value:Number(value.value)})).filter(entry=>Number.isFinite(entry.value)); if(!entries.length) return null; const values=entries.map(entry=>entry.value); const recommended=entries.find(entry=>entry.condition==='Very Good Plus (VG+)')||entries.find(entry=>entry.condition==='Near Mint (NM or M-)')||entries[0]; return { recommendedValue:recommended.value,recommendedCondition:recommended.condition,priceMin:Math.min(...values),priceMax:Math.max(...values),priceAvg:values.reduce((sum,v)=>sum+v,0)/values.length,priceCurrency:recommended.currency||entries[0].currency||'GBP',priceSuggestions:raw }; }
+      async function testToken(){ const token=localStorage.getItem(TOKEN_KEY)||''; if(!token){ showToast('Save a Discogs token first.','warn'); return; } els.testToken.disabled=true; els.testToken.textContent='Testing…'; try{ const response=await fetch('https://api.discogs.com/oauth/identity',{ headers: baseHeaders() }); if(response.status===401||response.status===403) throw new Error('Token failed authentication.'); if(!response.ok) throw new Error('Discogs token test failed.'); const me=await response.json(); showToast(`Token OK for ${me.username || 'Discogs user'}.`,'success'); } catch(error){ console.error(error); showToast(error.message||'Token test failed.','error'); } finally{ els.testToken.disabled=false; els.testToken.textContent='Test token'; } }
+      async function fetchPriceSuggestions(releaseId){ const token=localStorage.getItem(TOKEN_KEY)||''; if(!token) throw new Error('Save and test a Discogs token first.'); const response=await fetch(`https://api.discogs.com/marketplace/price_suggestions/${releaseId}`,{ headers: baseHeaders() }); if(response.status===401||response.status===403) throw new Error('Discogs rejected price access. Check token and seller settings.'); if(!response.ok) throw new Error('Discogs price lookup failed.'); const data=await response.json(); const computed=computeSuggestions(data); if(!computed) throw new Error('No price suggestions returned for this release.'); return computed; }
+      function scoreResult(result, barcode){ const normalizedTarget=normalizeBarcode(barcode); const barcodes=(result.barcode||[]).map(normalizeBarcode); let score=0; if(barcodes.includes(normalizedTarget)) score+=100; if(result.format && String(result.format).toLowerCase().includes('vinyl')) score+=10; if(result.country) score+=1; if(result.year) score+=1; return score; }
+      async function searchRelease(barcode){ const normalized=normalizeBarcode(barcode); const headers=baseHeaders(); const strict=await fetch(`https://api.discogs.com/database/search?barcode=${encodeURIComponent(barcode)}&type=release&per_page=10`,{ headers }); if(!strict.ok) throw new Error('Discogs search failed.'); const strictData=await strict.json(); let candidates=(strictData.results||[]).filter(item=>item.type==='release' || !item.type); let exact=candidates.filter(item=>Array.isArray(item.barcode)&&item.barcode.map(normalizeBarcode).includes(normalized)); if(exact.length) return exact.sort((a,b)=>scoreResult(b,barcode)-scoreResult(a,barcode))[0]; if(candidates.length) return candidates.sort((a,b)=>scoreResult(b,barcode)-scoreResult(a,barcode))[0]; const broad=await fetch(`https://api.discogs.com/database/search?release_title=${encodeURIComponent(normalized)}&type=release&per_page=25`,{ headers }); if(!broad.ok) throw new Error('Fallback Discogs search failed.'); const broadData=await broad.json(); const broader=(broadData.results||[]).filter(item=>Array.isArray(item.barcode)&&item.barcode.map(normalizeBarcode).includes(normalized)); if(broader.length) return broader.sort((a,b)=>scoreResult(b,barcode)-scoreResult(a,barcode))[0]; throw new Error('No Discogs match found for this barcode.'); }
+      async function lookupBarcode(barcode){ if(!barcode){ showToast('Enter a barcode before lookup.','error'); return; } els.lookupManual.disabled=true; els.lookupManual.textContent='Looking up…'; try{ const result=await searchRelease(barcode); const pricing=result.id ? await fetchPriceSuggestions(result.id) : null; state.currentLookup={ barcode,releaseId:result.id||'',title:result.title||'',artist:inferArtist(result),year:result.year||'',format:Array.isArray(result.format)?result.format.join(', '):(result.format||''),uri:result.uri?`https://www.discogs.com${result.uri}`:(result.resource_url||'#'),country:result.country||'',label:Array.isArray(result.label)?result.label.join(', '):(result.label||''),...(pricing||{}) }; renderLookup(); fillForm(state.currentLookup); showToast('Album and price lookup loaded.','success'); } catch(error){ console.error(error); showToast(error.message||'Lookup failed.','error'); } finally{ els.lookupManual.disabled=false; els.lookupManual.textContent='Lookup typed barcode'; } }
+      function renderLookup(){ if(!state.currentLookup){ els.lookupResult.hidden=true; return; } const item=state.currentLookup; els.lookupResult.hidden=false; els.lookupTitle.textContent=item.title||'Discogs result'; els.lookupDescription.textContent=`${item.artist||'Unknown artist'}${item.year?` · ${item.year}`:''}${item.label?` · ${item.label}`:''}`; els.lookupTags.innerHTML=[item.format?`<span class="tag">${escapeHtml(item.format)}</span>`:'',item.country?`<span class="tag">${escapeHtml(item.country)}</span>`:'',item.recommendedCondition?`<span class="tag">${escapeHtml(item.recommendedCondition)}</span>`:'',item.releaseId?`<span class="tag">Release #${escapeHtml(item.releaseId)}</span>`:''].join(''); els.lookupRec.textContent=item.recommendedValue!=null?formatCurrency(item.recommendedValue,item.priceCurrency):'—'; els.lookupMin.textContent=item.priceMin!=null?formatCurrency(item.priceMin,item.priceCurrency):'—'; els.lookupMax.textContent=item.priceMax!=null?formatCurrency(item.priceMax,item.priceCurrency):'—'; els.lookupAvg.textContent=item.priceAvg!=null?formatCurrency(item.priceAvg,item.priceCurrency):'—'; els.discogsLink.href=item.uri||'#'; }
+      async function startNativeScanner(){ state.stream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:false }); els.scannerVideo.srcObject=state.stream; await els.scannerVideo.play(); els.scannerVideo.style.display='block'; els.cameraPlaceholder.hidden=true; els.scannerStatus.textContent='Camera active — native detector'; const scanFrame=async()=>{ if(!state.stream||!detector) return; try{ const hits=await detector.detect(els.scannerVideo); const hit=hits.find(code=>code.rawValue); if(hit?.rawValue){ els.barcode.value=hit.rawValue; stopScanner(); await lookupBarcode(hit.rawValue); return; } } catch(e){} state.scanLoop=requestAnimationFrame(scanFrame); }; scanFrame(); }
+      function startQuaggaScanner(){ return new Promise((resolve,reject)=>{ els.interactive.style.display='block'; els.cameraPlaceholder.hidden=true; els.scannerStatus.textContent='Camera active — Quagga2 scanner'; Quagga.init({ inputStream:{ type:'LiveStream', target:els.interactive, constraints:{ facingMode:'environment', width:{ ideal:1280 }, height:{ ideal:720 } } }, locator:{ patchSize:'medium', halfSample:true }, numOfWorkers:navigator.hardwareConcurrency?Math.min(4,navigator.hardwareConcurrency):2, frequency:10, decoder:{ readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader'] }, locate:true }, err=>{ if(err){ reject(err); return; } state.quaggaRunning=true; Quagga.start(); const onDetected=async data=>{ const code=data?.codeResult?.code; if(!code) return; Quagga.offDetected(onDetected); els.barcode.value=code; stopScanner(); await lookupBarcode(code); }; state.quaggaHandler=onDetected; Quagga.onDetected(onDetected); resolve(); }); }); }
+      async function startScanner(){ if(!navigator.mediaDevices?.getUserMedia){ showToast('Camera access is not available in this browser.','error'); return; } try{ if(detector){ await startNativeScanner(); } else if(window.Quagga){ await startQuaggaScanner(); showToast('Using Quagga2 live scanner fallback.','info'); } else { throw new Error('Scanner library did not load.'); } } catch(error){ console.error(error); showToast('Could not start the camera scanner.','error'); stopScanner(); } }
+      function stopScanner(){ if(state.scanLoop) cancelAnimationFrame(state.scanLoop); state.scanLoop=null; if(state.stream){ state.stream.getTracks().forEach(track=>track.stop()); state.stream=null; } if(state.quaggaRunning&&window.Quagga){ try{ if(state.quaggaHandler) Quagga.offDetected(state.quaggaHandler); Quagga.stop(); }catch(e){} } state.quaggaRunning=false; state.quaggaHandler=null; els.scannerVideo.pause(); els.scannerVideo.srcObject=null; els.scannerVideo.style.display='none'; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.hidden=false; els.scannerStatus.textContent='Scanner idle'; }
+      function buildRecord(existingId=null){ return { id:existingId||crypto.randomUUID(), barcode:els.barcode.value.trim(), releaseId:state.currentLookup?.releaseId||'', recommendedValue:Number(els.estimatedValue.value||0), priceMin:Number(els.priceMin.value||0), priceMax:Number(els.priceMax.value||0), priceAvg:Number(els.priceAvg.value||0), priceCurrency:els.priceCurrency.value.trim()||'GBP', recommendedCondition:state.currentLookup?.recommendedCondition||'Manual', priceSuggestions:state.currentLookup?.priceSuggestions||null, artist:els.artist.value.trim(), title:els.title.value.trim(), year:els.year.value.trim(), format:els.format.value.trim(), notes:els.notes.value.trim(), sourceUrl:state.currentLookup?.uri||'', savedAt:new Date().toISOString() }; }
+      function triggerDownload(blob,filename){ const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=filename; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url); }
+      function exportJson(){ triggerDownload(new Blob([JSON.stringify(state.records,null,2)],{ type:'application/json' }),`vinyl-scan-vault-${new Date().toISOString().slice(0,10)}.json`); }
+      function csvEscape(value){ const text=String(value??''); return /[",\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text; }
+      function exportCsv(){ const headers=['id','barcode','releaseId','artist','title','year','format','recommendedValue','recommendedCondition','priceMin','priceMax','priceAvg','priceCurrency','notes','sourceUrl','savedAt']; const rows=state.records.map(item=>headers.map(key=>csvEscape(item[key]))); triggerDownload(new Blob([[headers.join(','),...rows.map(r=>r.join(','))].join('\n')],{ type:'text/csv;charset=utf-8' }),`vinyl-scan-vault-${new Date().toISOString().slice(0,10)}.csv`); }
+      function importJsonFile(file){ const reader=new FileReader(); reader.onload=()=>{ try{ const parsed=JSON.parse(reader.result); if(!Array.isArray(parsed)) throw new Error('JSON file must contain an array of records.'); state.records=parsed.map(item=>({ id:item.id||crypto.randomUUID(), barcode:item.barcode||'', releaseId:item.releaseId||'', recommendedValue:Number(item.recommendedValue||0), priceMin:Number(item.priceMin||0), priceMax:Number(item.priceMax||0), priceAvg:Number(item.priceAvg||0), priceCurrency:item.priceCurrency||'GBP', recommendedCondition:item.recommendedCondition||'Manual', priceSuggestions:item.priceSuggestions||null, artist:item.artist||'', title:item.title||'', year:item.year||'', format:item.format||'', notes:item.notes||'', sourceUrl:item.sourceUrl||'', savedAt:item.savedAt||new Date().toISOString() })); saveRecords(); renderTable(); showToast('Import complete.','success'); } catch(error){ showToast(error.message||'Import failed.','error'); } }; reader.readAsText(file); }
+      function wireEvents(){ els.lookupManual.addEventListener('click',()=>lookupBarcode(els.barcode.value.trim())); els.form.addEventListener('submit',event=>{ event.preventDefault(); const id=els.form.dataset.editingId||null; const record=buildRecord(id); if(!record.barcode){ showToast('Barcode is required.','error'); return; } if(id){ state.records=state.records.map(item=>item.id===id?record:item); showToast('Record updated.','success'); } else { state.records.unshift(record); showToast('Record saved locally.','success'); } saveRecords(); renderTable(); resetForm(); }); els.useDiscogsData.addEventListener('click',()=>{ if(!state.currentLookup) return; fillForm(state.currentLookup); showToast('Discogs data copied into the form.','info'); }); els.newRecord.addEventListener('click',resetForm); els.recordsBody.addEventListener('click',event=>{ const button=event.target.closest('button[data-action]'); if(!button) return; const record=state.records.find(item=>item.id===button.dataset.id); if(!record) return; if(button.dataset.action==='delete'){ state.records=state.records.filter(item=>item.id!==record.id); saveRecords(); renderTable(); showToast('Record removed.','info'); } if(button.dataset.action==='edit'){ fillForm(record); els.form.dataset.editingId=record.id; window.scrollTo({ top:0,behavior:'smooth' }); showToast('Editing selected record.','info'); } }); els.searchInput.addEventListener('input',event=>{ state.searchTerm=event.target.value; renderTable(); }); els.sortDate.addEventListener('click',()=>{ state.sortMode='date'; renderTable(); }); els.sortValue.addEventListener('click',()=>{ state.sortMode='value'; renderTable(); }); els.exportJson.addEventListener('click',exportJson); els.exportCsv.addEventListener('click',exportCsv); els.importFile.addEventListener('change',event=>{ const [file]=event.target.files||[]; if(file) importJsonFile(file); event.target.value=''; }); els.clearAll.addEventListener('click',()=>{ if(!confirm('Delete every saved record from this browser?')) return; state.records=[]; saveRecords(); renderTable(); showToast('All local records cleared.','info'); }); els.startScan.addEventListener('click',startScanner); els.stopScan.addEventListener('click',stopScanner); els.openHelp.addEventListener('click',()=>els.helpDialog.showModal()); els.closeHelp.addEventListener('click',()=>els.helpDialog.close()); els.saveToken.addEventListener('click',()=>{ const token=els.discogsToken.value.trim(); if(!token){ showToast('Paste a token first.','warn'); return; } localStorage.setItem(TOKEN_KEY,token); updateTokenStatus(); showToast('Discogs token saved locally.','success'); }); els.testToken.addEventListener('click',testToken); els.toggleToken.addEventListener('click',()=>{ const isPassword=els.discogsToken.type==='password'; els.discogsToken.type=isPassword?'text':'password'; els.toggleToken.textContent=isPassword?'Hide':'Show'; }); els.clearToken.addEventListener('click',()=>{ localStorage.removeItem(TOKEN_KEY); els.discogsToken.value=''; updateTokenStatus(); showToast('Discogs token removed.','info'); }); }
       initTheme(); loadRecords(); loadToken(); renderTable(); wireEvents();
     })();
   </script>
