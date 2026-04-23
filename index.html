@@ -229,7 +229,7 @@
     (() => {
       const STORAGE_KEY = 'vinyl-scan-vault-records';
       const TOKEN_KEY = 'vinyl-scan-vault-discogs-token';
-      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, sortMode: 'date', searchTerm: '', quaggaRunning: false, lastScanned: '', scanDelay: 2 }; // Delay in seconds after scan
+      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, scanDelay: 2, inDelay: false, sortMode: 'date', searchTerm: '', quaggaRunning: false, lastScanned: '' }; // Delay in seconds after scan
       const els = {
         html: document.documentElement, themeToggle: document.querySelector('[data-theme-toggle]'), form: document.getElementById('record-form'),
         barcode: document.getElementById('barcode'), estimatedValue: document.getElementById('estimated-value'), artist: document.getElementById('artist'), title: document.getElementById('title'), year: document.getElementById('year'), format: document.getElementById('format'), notes: document.getElementById('notes'),
@@ -502,18 +502,21 @@
               if (validHit && validHit.rawValue) {
                 const code = validHit.rawValue;
                 // Debounce - only trigger if different from last scan
-                if (code !== state.lastScanned) {
+                if (code !== state.lastScanned && !state.inDelay) {
                   state.lastScanned = code;
                   els.scannerStatus.textContent = 'Found: ' + code;
                   els.barcode.value = code;
                   // Check for duplicate and confirm if needed
-                  const isDup = state.records.some(r => r.barcode === code);
+                  const isDup = state.records.some(r => r.barcode === code); console.log('Checking duplicate:', code, 'Found:', isDup, 'Records:', state.records.length);
                   if(isDup && !confirm('Duplicate! Save anyway?')) { state.lastScanned = ''; return; }
                   await lookupBarcode(code);
-                  // Show delay countdown
+                  // Set delay flag and pause scanning
+                  state.inDelay = true;
                   const delaySecs = state.scanDelay || 2;
                   for(let i=delaySecs; i>0; i--) { els.scannerStatus.textContent = `Next scan in ${i}s...`; await new Promise(r => setTimeout(r, 1000)); }
                   els.scannerStatus.textContent = 'Scanning... (point at barcode)';
+                  state.inDelay = false;
+                  state.lastScanned = ''; // Allow same code again
 
                   
                   // Continue scanning after lookup - don't return
@@ -538,7 +541,7 @@
           }, err => {
             if(err){ reject(err); return; }
             state.quaggaRunning = true; Quagga.start();
-            const onDetected = async data => { const code=data?.codeResult?.code; if(code && code !== state.lastScanned && code.length >= 8) { state.lastScanned = code; els.barcode.value=code; await lookupBarcode(code); } };
+            const onDetected = async data => { const code=data?.codeResult?.code; if(code && code !== state.lastScanned && code.length >= 8 && !state.inDelay) { state.lastScanned = code; els.barcode.value=code; await lookupBarcode(code); } };
             state.quaggaHandler = onDetected; Quagga.onDetected(onDetected); resolve();
           });
         });
@@ -648,7 +651,7 @@
         
         document.getElementById('clear-debug').addEventListener('click', ()=>{ debugLog.value = ''; });
       }
-      initTheme(); loadRecords(); loadToken(); loadSettings(); renderTable(); wireEvents();
+      loadRecords(); initTheme(); loadToken(); loadSettings(); renderTable(); wireEvents();
     })();
   </script>
 </body>
