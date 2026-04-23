@@ -115,6 +115,7 @@
           <details id="debug-panel" style="margin-top:var(--space-2);">
             <summary style="cursor:pointer; font-size:11px;">Debug log</summary>
             <textarea id="debug-log" readonly style="width:100%; min-height:80px; font-family:monospace; font-size:10px; background:#f0f0f0; border:1px solid #ccc; border-radius:4px; padding:8px; color:#333; resize:vertical; margin-top:4px;"></textarea>
+            <button id="clear-debug" style="margin-top:4px; min-height:24px; font-size:10px;">Clear</button>
           </details>
         </div>
         <div style="display:flex; gap:var(--space-1); flex-wrap:wrap;">
@@ -655,7 +656,7 @@
         const debugEl = document.getElementById('debug-panel');
         const debugLog = document.getElementById('debug-log');
         
-        document.getElementById('clear-debug').addEventListener('click', ()=>{ debugLog.value = ''; });
+        document.getElementById('clear-debug')?.addEventListener('click', ()=>{ if(debugLog) debugLog.value = ''; });
       }
       loadRecords(); initTheme(); loadToken(); loadSettings(); renderTable(); wireEvents();
     })();
