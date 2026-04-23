@@ -56,8 +56,8 @@
     .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-top:var(--space-6); }
     .stat,.mini-card { padding:var(--space-4); background:var(--color-surface-2); border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .stat strong,.mini-card strong { display:block; font-size:var(--text-lg); font-variant-numeric:tabular-nums; }
-    .camera { position:sticky; top:0; z-index:1500; background:#000; top:0; z-index:3000; background:var(--color-bg); border-radius:var(--radius-lg); overflow:hidden; min-height:150px; max-height:180px; width:100%; background:#000; border:2px solid var(--color-primary); }
-    .camera.scanning { position:fixed; top:0; left:0; right:0; z-index:99999; height:100px; min-height:120px; width:100% !important; box-shadow:0 4px 20px rgba(0,0,0,0.5); background:#000; }
+    .camera { position:sticky; top:50px; z-index:1500; border-radius:var(--radius-lg); overflow:hidden; min-height:150px; max-height:180px; width:100%; background:#000; border:2px solid var(--color-primary); }
+    .camera.scanning { position:sticky; top:50px; left:0; right:0; z-index:99999; height:100px; min-height:120px; width:100% !important; box-shadow:0 4px 20px rgba(0,0,0,0.5); background:#000; }
       body.camera-active { }
     #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100% !important; height:100% !important; min-height:100px; object-fit:cover !important; }
     #interactive.viewport,#scanner-video { position:absolute; inset:0; display:block; }
@@ -121,6 +121,9 @@
         <div style="display:flex; gap:var(--space-1); flex-wrap:wrap;">
           <button class="btn btn-ghost" data-theme-toggle aria-label="Switch theme">🌙</button>
           <button class="btn" type="button" id="open-help">Help</button>
+          <label style="display:flex; align-items:center; gap:4px; font-size:11px; margin-top:4px;">
+            <input type="checkbox" id="allow-duplicate" style="width:auto; height:auto;"> Allow duplicates
+          </label>
           <select id="scan-delay" style="min-height:32px; font-size:11px; border-radius:var(--radius-md);">
             <option value="1">1s</option>
             <option value="2" selected>2s</option>
@@ -286,8 +289,8 @@
 
       function initTheme(){ applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); els.themeToggle.addEventListener('click', ()=>applyTheme(els.html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')); }
       function loadRecords(){ try { state.records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { state.records = []; } }
-      function loadSettings(){ try { state.scanDelay = parseInt(localStorage.getItem('vinyl-scan-delay')) || 2; } catch { state.scanDelay = 2; } document.getElementById('scan-delay').value = state.scanDelay; }
-      function saveSettings(){ localStorage.setItem('vinyl-scan-delay', state.scanDelay); }
+      function loadSettings(){ try { state.scanDelay = parseInt(localStorage.getItem('vinyl-scan-delay')) || 2; } catch { state.scanDelay = 2; } document.getElementById('scan-delay').value = state.scanDelay; try { state.allowDuplicate = localStorage.getItem('vinyl-allow-duplicate') === 'true'; } catch { state.allowDuplicate = false; } document.getElementById('allow-duplicate').checked = state.allowDuplicate; }
+      function saveSettings(){ localStorage.setItem('vinyl-scan-delay', state.scanDelay); localStorage.setItem('vinyl-allow-duplicate', state.allowDuplicate); }
       function saveRecords(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records)); }
       function loadToken(){ const token = localStorage.getItem(TOKEN_KEY) || ''; els.discogsToken.value = token; updateTokenStatus(); }
       function updateTokenStatus(){ const token = localStorage.getItem(TOKEN_KEY) || ''; els.tokenStatus.textContent = token ? `Token saved locally (${token.slice(0,4)}••••${token.slice(-4)}).` : 'No token saved yet.'; }
@@ -403,8 +406,8 @@
         if(!barcode){ showToast('Enter a barcode before lookup.','error'); return; }
         // Check for duplicate first - before any lookup
         const existingRecord = state.records.find(r => r.barcode === barcode);
-        if(existingRecord) { 
-          showToast('Duplicate: ' + barcode, 'warn'); 
+        if(existingRecord && !state.allowDuplicate) { 
+          showToast('Duplicate: ' + barcode + ' (use menu to allow)', 'warn'); 
           return; 
         }
         const token = (localStorage.getItem(TOKEN_KEY) || '').trim();
@@ -651,6 +654,7 @@
         els.clearToken.addEventListener('click', ()=>{ localStorage.removeItem(TOKEN_KEY); els.discogsToken.value=''; updateTokenStatus(); showToast('Discogs token removed.','info'); });
         document.getElementById('toggle-menu').addEventListener('click', (e)=>{ e.stopPropagation(); const panel = document.getElementById('menu-panel'); panel.style.display = panel.style.display === 'none' ? 'block' : 'none'; });
         document.getElementById('scan-delay')?.addEventListener('change', (e)=>{ state.scanDelay = parseInt(e.target.value) || 2; saveSettings(); });
+        document.getElementById('allow-duplicate')?.addEventListener('change', (e)=>{ state.allowDuplicate = e.target.checked; saveSettings(); });
         document.getElementById('open-token')?.addEventListener('click', ()=>{ document.getElementById('menu-panel').style.display = 'none'; document.getElementById('token-panel')?.scrollIntoView({behavior:'smooth'}); });
         document.addEventListener('click', e => { if(!e.target.closest('#menu-panel') && !e.target.closest('#toggle-menu')) document.getElementById('menu-panel').style.display = 'none'; });
         const debugEl = document.getElementById('debug-panel');
