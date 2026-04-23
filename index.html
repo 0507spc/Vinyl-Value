@@ -119,6 +119,13 @@
         <div style="display:flex; gap:var(--space-1); flex-wrap:wrap;">
           <button class="btn btn-ghost" data-theme-toggle aria-label="Switch theme">🌙</button>
           <button class="btn" type="button" id="open-help">Help</button>
+          <select id="scan-delay" style="min-height:32px; font-size:11px; border-radius:var(--radius-md);">
+            <option value="1">1s</option>
+            <option value="2" selected>2s</option>
+            <option value="3">3s</option>
+            <option value="4">4s</option>
+            <option value="5">5s</option>
+          </select>
           <label class="btn" for="import-file" style="min-height:32px; font-size:var(--text-xs);">Import</label>
           <input id="import-file" type="file" accept="application/json" hidden />
           <button class="btn" type="button" id="export-json" style="min-height:32px; font-size:var(--text-xs);">Export</button>
@@ -221,7 +228,7 @@
     (() => {
       const STORAGE_KEY = 'vinyl-scan-vault-records';
       const TOKEN_KEY = 'vinyl-scan-vault-discogs-token';
-      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, sortMode: 'date', searchTerm: '', quaggaRunning: false, lastScanned: '' };
+      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, sortMode: 'date', searchTerm: '', quaggaRunning: false, lastScanned: '', scanDelay: 2 }; // Delay in seconds after scan
       const els = {
         html: document.documentElement, themeToggle: document.querySelector('[data-theme-toggle]'), form: document.getElementById('record-form'),
         barcode: document.getElementById('barcode'), estimatedValue: document.getElementById('estimated-value'), artist: document.getElementById('artist'), title: document.getElementById('title'), year: document.getElementById('year'), format: document.getElementById('format'), notes: document.getElementById('notes'),
@@ -496,7 +503,13 @@
                   state.lastScanned = code;
                   els.scannerStatus.textContent = 'Found: ' + code;
                   els.barcode.value = code;
+                  // Check for duplicate and confirm if needed
+                  const isDup = state.records.some(r => r.barcode === code);
+                  if(isDup && !confirm('Duplicate! Save anyway?')) { state.lastScanned = ''; return; }
                   await lookupBarcode(code);
+                  // Pause before next scan based on delay setting
+                  const delay = (state.scanDelay || 2) * 1000;
+                  await new Promise(r => setTimeout(r, delay));
                   // Continue scanning after lookup - don't return
                 }
               }
@@ -621,6 +634,7 @@
         els.toggleToken.addEventListener('click', ()=>{ const isPassword = els.discogsToken.type === 'password'; els.discogsToken.type = isPassword ? 'text' : 'password'; els.toggleToken.textContent = isPassword ? 'Hide' : 'Show'; });
         els.clearToken.addEventListener('click', ()=>{ localStorage.removeItem(TOKEN_KEY); els.discogsToken.value=''; updateTokenStatus(); showToast('Discogs token removed.','info'); });
         document.getElementById('toggle-menu').addEventListener('click', (e)=>{ e.stopPropagation(); const panel = document.getElementById('menu-panel'); panel.style.display = panel.style.display === 'none' ? 'block' : 'none'; });
+        document.getElementById('scan-delay')?.addEventListener('change', (e)=>{ state.scanDelay = parseInt(e.target.value) || 2; });
         document.getElementById('open-token')?.addEventListener('click', ()=>{ document.getElementById('menu-panel').style.display = 'none'; document.getElementById('token-panel')?.scrollIntoView({behavior:'smooth'}); });
         document.addEventListener('click', e => { if(!e.target.closest('#menu-panel') && !e.target.closest('#toggle-menu')) document.getElementById('menu-panel').style.display = 'none'; });
         const debugEl = document.getElementById('debug-panel');
