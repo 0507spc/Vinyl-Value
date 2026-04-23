@@ -470,7 +470,7 @@
         els.discogsLink.href = item.uri || '#';
       }
       async function startNativeScanner(){
-        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
         els.scannerVideo.srcObject = state.stream; await els.scannerVideo.play(); els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)';
         const scanFrame = async () => {
           if(!state.stream || !detector) return;
@@ -500,9 +500,9 @@
         return new Promise((resolve,reject)=>{
           els.interactive.style.display='block'; els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)';
           Quagga.init({
-            inputStream: { type:'LiveStream', target: els.interactive, constraints: { facingMode:'environment', width:{ ideal:1920 }, height:{ ideal:1080 }, facingMode:'user' } },
+            inputStream: { type:'LiveStream', target: els.interactive, constraints: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } } },
             locator: { patchSize:'medium', halfSample:true }, numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2, frequency: 15,
-            decoder: { readers: ['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader','code_39_reader'] }, locate: true
+            decoder: { readers: ['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader','code_39_reader'], shouldReturnSequence: true }, locate: true
           }, err => {
             if(err){ reject(err); return; }
             state.quaggaRunning = true; Quagga.start();
