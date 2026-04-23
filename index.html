@@ -100,15 +100,32 @@
         <button class="btn btn-ghost" type="button" id="toggle-menu">☰</button>
       </div>
     </header>
-    <div id="menu-panel" style="display:none; position:absolute; top:100%; right:0; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-2); box-shadow:var(--shadow-lg); min-width:150px;">
-        <button class="btn" type="button" id="open-token">Token</button>
-        <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Switch theme">🌙</button>
-        <button class="btn" type="button" id="open-help">Help</button>
-        <label class="btn" for="import-file">Import</label>
-        <input id="import-file" type="file" accept="application/json" hidden />
-        <button class="btn" type="button" id="export-json">Export JSON</button>
-        <button class="btn" type="button" id="export-csv">Export CSV</button>
-        <button class="btn btn-warning" type="button" id="clear-all">Clear all</button>
+    <div id="menu-panel" style="display:none; position:absolute; top:100%; right:0; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-2); box-shadow:var(--shadow-lg); min-width:200px; z-index:1000;">
+        <div style="border-bottom:1px solid var(--color-border); margin-bottom:var(--space-2); padding-bottom:var(--space-2);">
+          <div style="font-size:var(--text-xs); margin-bottom:var(--space-1);">Token</div>
+          <input id="discogs-token" type="password" placeholder="Paste token" style="width:100%; min-height:36px; border-radius:var(--radius-md); border:1px solid var(--color-border); background:var(--color-surface-2); padding:0 var(--space-2); margin-bottom:var(--space-1);" />
+          <div style="display:flex; gap:var(--space-1); flex-wrap:wrap;">
+            <button class="btn btn-primary" type="button" id="save-token" style="min-height:32px; font-size:var(--text-xs); padding:0 var(--space-2);">Save</button>
+            <button class="btn" type="button" id="test-token" style="min-height:32px; font-size:var(--text-xs); padding:0 var(--space-2);">Test</button>
+            <button class="btn" type="button" id="toggle-token" style="min-height:32px; font-size:var(--text-xs); padding:0 var(--space-2);">Show</button>
+            <button class="btn btn-warning" type="button" id="clear-token" style="min-height:32px; font-size:var(--text-xs); padding:0 var(--space-2);">Clear</button>
+          </div>
+          <div id="token-status" style="font-size:11px; margin-top:var(--space-1); color:var(--color-text-muted);">No token saved.</div>
+          <details id="debug-panel" style="margin-top:var(--space-2);">
+            <summary style="cursor:pointer; font-size:11px;">Debug log</summary>
+            <textarea id="debug-log" readonly style="width:100%; min-height:80px; font-family:monospace; font-size:10px; background:#f0f0f0; border:1px solid #ccc; border-radius:4px; padding:8px; color:#333; resize:vertical; margin-top:4px;"></textarea>
+          </details>
+        </div>
+        <div style="display:flex; gap:var(--space-1); flex-wrap:wrap;">
+          <button class="btn btn-ghost" data-theme-toggle aria-label="Switch theme">🌙</button>
+          <button class="btn" type="button" id="open-help">Help</button>
+          <label class="btn" for="import-file" style="min-height:32px; font-size:var(--text-xs);">Import</label>
+          <input id="import-file" type="file" accept="application/json" hidden />
+          <button class="btn" type="button" id="export-json" style="min-height:32px; font-size:var(--text-xs);">Export</button>
+          <button class="btn" type="button" id="export-csv" style="min-height:32px; font-size:var(--text-xs);">CSV</button>
+          <button class="btn btn-warning" type="button" id="clear-all" style="min-height:32px; font-size:var(--text-xs);">Clear</button>
+          
+        </div>
       </div>
     </header>
 
@@ -142,22 +159,11 @@
       </section>
 
       <section class="grid" style="margin-bottom: var(--space-4);">
-        <article class="panel token-panel" id="token-panel">
+        <article class="panel token-panel" id="token-panel" style="display:none;" hidden>
           <h2 style="margin:0 0 var(--space-2); font-size: var(--text-lg);">Discogs token</h2>
           <p class="section-note">Enter your Discogs token (stored in browser only)</p>
-          <div class="token-row">
-            <input id="discogs-token" type="password" placeholder="Paste Discogs personal token" style="flex:1; min-height:44px; border-radius:var(--radius-md); border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text); padding:0 var(--space-3);" />
-            <button class="btn btn-primary" type="button" id="save-token">Save token</button>
-            <button class="btn" type="button" id="test-token">Test token</button>
-            <button class="btn" type="button" id="toggle-token">Show</button>
-            <button class="btn btn-warning" type="button" id="clear-token">Clear token</button>
-            <button class="btn" type="button" id="toggle-debug">Debug</button>
-          </div>
-          <p class="notice" id="token-status">No token saved yet.</p>
-          <div id="debug-panel" style="display:none; margin-top: var(--space-3);">
-            <textarea id="debug-log" readonly style="width:100%; min-height:120px; font-family:monospace; font-size:12px; background:#f0f0f0; border:1px solid #ccc; border-radius:4px; padding:10px; color:#333; resize:vertical;"></textarea>
-            <button class="btn" type="button" id="clear-debug" style="margin-top:8px">Clear Log</button>
-          </div>
+          <p hidden>Token moved to menu</p>
+          
         </article>
         
       </section>
@@ -619,7 +625,7 @@
         document.addEventListener('click', e => { if(!e.target.closest('#menu-panel') && !e.target.closest('#toggle-menu')) document.getElementById('menu-panel').style.display = 'none'; });
         const debugEl = document.getElementById('debug-panel');
         const debugLog = document.getElementById('debug-log');
-        document.getElementById('toggle-debug').addEventListener('click', ()=>{ debugEl.style.display = debugEl.style.display === 'none' ? 'block' : 'none'; });
+        
         document.getElementById('clear-debug').addEventListener('click', ()=>{ debugLog.value = ''; });
       }
       initTheme(); loadRecords(); loadToken(); renderTable(); wireEvents();
