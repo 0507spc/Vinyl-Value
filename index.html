@@ -519,7 +519,7 @@
                   // Set delay flag and pause scanning
                   state.inDelay = true;
                   const delaySecs = state.scanDelay || 2;
-                  for(let i=delaySecs; i>0; i--) { els.scannerStatus.textContent = `Next scan in ${i}s...`; await new Promise(r => setTimeout(r, 1000)); }
+                  for(let i=delaySecs; i>0; i--) { els.scannerStatus.textContent = 'Next scan in ' + delaySecs + 's...'; await new Promise(r => setTimeout(r, 1000)); }
                   els.scannerStatus.textContent = 'Scanning... (point at barcode)';
                   state.inDelay = false;
                   state.lastScanned = ''; // Allow same code again
@@ -547,7 +547,7 @@
           }, err => {
             if(err){ reject(err); return; }
             state.quaggaRunning = true; Quagga.start();
-            const onDetected = async data => { const code=data?.codeResult?.code; if(code && code !== state.lastScanned && code.length >= 8 && !state.inDelay) { state.lastScanned = code; els.barcode.value=code; await lookupBarcode(code); state.inDelay = true; const d=state.scanDelay||2; for(let i=d;i>0;i--){els.scannerStatus.textContent=\`Next scan in ${i}s\`; await new Promise(r=>setTimeout(r,1000));} els.scannerStatus.textContent='Scanning...'; state.inDelay=false; state.lastScanned=''; } }
+            const onDetected = async data => { const code=data?.codeResult?.code; if(code && code !== state.lastScanned && code.length >= 8 && !state.inDelay) { state.lastScanned = code; els.barcode.value=code; await lookupBarcode(code); state.inDelay = true; const d=state.scanDelay||2; for(let i=d;i>0;i--){els.scannerStatus.textContent='Next scan in ' + i + 's'; await new Promise(r=>setTimeout(r,1000));} els.scannerStatus.textContent='Scanning...'; state.inDelay=false; state.lastScanned=''; } }
             state.quaggaHandler = onDetected; Quagga.onDetected(onDetected); resolve();
           });
         });
