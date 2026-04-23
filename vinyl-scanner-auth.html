@@ -56,11 +56,13 @@
     .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-top:var(--space-6); }
     .stat,.mini-card { padding:var(--space-4); background:var(--color-surface-2); border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .stat strong,.mini-card strong { display:block; font-size:var(--text-lg); font-variant-numeric:tabular-nums; }
-    .camera { position:relative; border-radius:var(--radius-xl); overflow:hidden; min-height:300px; background:#000; border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
-    #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100%; height:100%; object-fit:cover; }
-    #interactive.viewport,#scanner-video { position:absolute; inset:0; display:none; }
+    .camera { position:relative; border-radius:var(--radius-xl); overflow:hidden; min-height:400px; background:#000; border:2px solid var(--color-primary); }
+    #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100%; height:100%; object-fit:cover; border-radius:var(--radius-lg); }
+    #interactive.viewport,#scanner-video { position:absolute; inset:0; display:block; }
     #interactive.viewport canvas { position:absolute; inset:0; }
-    .camera-placeholder { position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:var(--space-6); color:#f4f4f4; background:linear-gradient(135deg,#0c0c0c,#1b1b1b); }
+    .camera-placeholder { position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:var(--space-6); color:#aaa; background:#111; border:2px dashed #444; }
+    .camera-placeholder.visible { display:grid; }
+    .camera-placeholder.hidden { display:none; }
     .status-pill,.tag { display:inline-flex; align-items:center; gap:var(--space-2); border-radius:var(--radius-full); }
     .status-pill { padding:var(--space-2) var(--space-3); font-size:var(--text-xs); background:var(--color-surface-offset); color:var(--color-text-muted); }
     .tag { font-size:var(--text-xs); padding:var(--space-1) var(--space-3); background:var(--color-primary-highlight); color:var(--color-primary); }
@@ -216,7 +218,7 @@
     (() => {
       const STORAGE_KEY = 'vinyl-scan-vault-records';
       const TOKEN_KEY = 'vinyl-scan-vault-discogs-token';
-      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, sortMode: 'date', searchTerm: '', quaggaRunning: false };
+      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, sortMode: 'date', searchTerm: '', quaggaRunning: false, lastScanned: '' };
       const els = {
         html: document.documentElement, themeToggle: document.querySelector('[data-theme-toggle]'), form: document.getElementById('record-form'),
         barcode: document.getElementById('barcode'), estimatedValue: document.getElementById('estimated-value'), artist: document.getElementById('artist'), title: document.getElementById('title'), year: document.getElementById('year'), format: document.getElementById('format'), notes: document.getElementById('notes'),
@@ -441,12 +443,16 @@
           fillForm(state.currentLookup);
           playBeep();
           showToast('Discogs album and price loaded.', 'success');
+          // Clear lastScanned to allow rescanning same barcode
+          state.lastScanned = '';
           const record = buildRecord();
           state.records.unshift(record);
           saveRecords();
           renderTable();
-          // Don't reset form - keep for next scan
-          showToast('Record saved! Ready for next scan.', 'success');
+          // Clear barcode field but keep form title/artist visible
+          els.barcode.value = '';
+          els.scannerStatus.textContent = 'Scan next barcode...';
+          showToast('Saved! Ready for next scan.', 'success');
         } catch(error){ console.error("Lookup failed:", error); console.error(error.stack); showToast(error.message || 'Lookup failed.','error'); }
         finally { els.lookupManual.disabled = false; els.lookupManual.textContent = 'Lookup typed barcode'; }
       }
@@ -465,21 +471,38 @@
       }
       async function startNativeScanner(){
         state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
-        els.scannerVideo.srcObject = state.stream; await els.scannerVideo.play(); els.scannerVideo.style.display='block'; els.cameraPlaceholder.hidden=true; els.scannerStatus.textContent='Camera active — native detector';
+        els.scannerVideo.srcObject = state.stream; await els.scannerVideo.play(); els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)';
         const scanFrame = async () => {
           if(!state.stream || !detector) return;
-          try { const hits = await detector.detect(els.scannerVideo); const hit = hits.find(code=>code.rawValue); if(hit?.rawValue){ els.barcode.value=hit.rawValue; await lookupBarcode(hit.rawValue); return; } } catch(e) {}
+          try { 
+            const hits = await detector.detect(els.scannerVideo); 
+            if (hits && hits.length > 0) {
+              // Get the most confident barcode (first one with highest value)
+              const validHit = hits.find(h => h.rawValue && h.rawValue.length >= 8);
+              if (validHit && validHit.rawValue) {
+                const code = validHit.rawValue;
+                // Debounce - only trigger if different from last scan
+                if (code !== state.lastScanned) {
+                  state.lastScanned = code;
+                  els.scannerStatus.textContent = 'Found: ' + code;
+                  els.barcode.value = code;
+                  await lookupBarcode(code);
+                  return;
+                }
+              }
+            }
+          } catch(e) {}
           state.scanLoop = requestAnimationFrame(scanFrame);
         };
         scanFrame();
       }
       function startQuaggaScanner(){
         return new Promise((resolve,reject)=>{
-          els.interactive.style.display='block'; els.cameraPlaceholder.hidden=true; els.scannerStatus.textContent='Camera active — Quagga2 scanner';
+          els.interactive.style.display='block'; els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)';
           Quagga.init({
-            inputStream: { type:'LiveStream', target: els.interactive, constraints: { facingMode:'environment', width:{ ideal:1280 }, height:{ ideal:720 } } },
-            locator: { patchSize:'medium', halfSample:true }, numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2, frequency: 10,
-            decoder: { readers: ['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader'] }, locate: true
+            inputStream: { type:'LiveStream', target: els.interactive, constraints: { facingMode:'environment', width:{ ideal:1920 }, height:{ ideal:1080 }, facingMode:'user' } },
+            locator: { patchSize:'medium', halfSample:true }, numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2, frequency: 15,
+            decoder: { readers: ['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader','code_39_reader'] }, locate: true
           }, err => {
             if(err){ reject(err); return; }
             state.quaggaRunning = true; Quagga.start();
@@ -498,7 +521,7 @@
         if(state.stream){ state.stream.getTracks().forEach(track=>track.stop()); state.stream = null; }
         if(state.quaggaRunning && window.Quagga){ try { if(state.quaggaHandler) Quagga.offDetected(state.quaggaHandler); Quagga.stop(); } catch(e) {} }
         state.quaggaRunning = false; state.quaggaHandler = null;
-        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.scannerVideo.style.display = 'none'; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.hidden=false; els.scannerStatus.textContent='Scanner idle';
+        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.classList.remove('hidden'); els.scannerStatus.textContent='Scanner idle';
       }
       function buildRecord(existingId=null){
         return {
@@ -547,6 +570,7 @@
       }
       function wireEvents(){
         els.lookupManual.addEventListener('click', ()=>lookupBarcode(els.barcode.value.trim()));
+        els.barcode.addEventListener('keypress', e => { if(e.key === 'Enter') lookupBarcode(els.barcode.value.trim()); });
         els.form.addEventListener('submit', event => {
           event.preventDefault();
           const id = els.form.dataset.editingId || null;
