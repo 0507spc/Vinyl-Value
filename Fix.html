@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vinyl Barcode Scanner</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
+      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f3f0ec; --color-surface-dynamic: #e6e4df; --color-divider: #dcd9d5; --color-border: #d4d1ca;
+      --color-text: #28251d; --color-text-muted: #6e6b64; --color-text-faint: #a7a39a; --color-text-inverse: #f9f8f4;
+      --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-active: #0f3638; --color-primary-highlight: #cedcd8;
+      --color-success: #437a22; --color-warning: #964219; --color-error: #a12c7b;
+      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px rgb(40 37 29 / 0.06); --shadow-md: 0 10px 24px rgb(40 37 29 / 0.08); --shadow-lg: 0 16px 40px rgb(40 37 29 / 0.12);
+      --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      --font-body: 'Satoshi', system-ui, sans-serif;
+      --content-wide: 1200px;
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d; --color-surface-offset: #1d1c1a; --color-surface-dynamic: #2d2c2a; --color-divider: #262523; --color-border: #393836;
+      --color-text: #cdccca; --color-text-muted: #a9a7a2; --color-text-faint: #777471; --color-text-inverse: #2b2a28;
+      --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-active: #1a626b; --color-primary-highlight: #313b3b;
+      --color-success: #6daa45; --color-warning: #bb653b; --color-error: #d163a7;
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.2); --shadow-md: 0 10px 24px rgb(0 0 0 / 0.28); --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.36);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; font-family: var(--font-body); font-size: var(--text-base);
+      background: radial-gradient(circle at top right, color-mix(in srgb, var(--color-primary) 9%, transparent), transparent 28%), var(--color-bg);
+      color: var(--color-text); line-height: 1.5;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    .app { max-width: var(--content-wide); margin: 0 auto; padding: var(--space-4); }
+    .skip-link { position: absolute; left: -9999px; top: 0; }
+    .skip-link:focus { left: var(--space-4); top: var(--space-4); background: var(--color-primary); color: var(--color-text-inverse); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); z-index: 999; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); padding: var(--space-4) 0; }
+    .brand { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; }
+    .brand svg { width: 42px; height: 42px; color: var(--color-primary); }
+    .brand-text strong { display: block; font-size: var(--text-sm); letter-spacing: 0.06em; text-transform: uppercase; }
+    .brand-text span { display: block; color: var(--color-text-muted); font-size: var(--text-xs); }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+    .btn { min-height: 44px; border-radius: var(--radius-full); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background: var(--color-surface); color: var(--color-text); padding: 0 var(--space-4); display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); transition: transform var(--transition-interactive), background var(--transition-interactive), border-color var(--transition-interactive), color var(--transition-interactive); box-shadow: var(--shadow-sm); }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .btn-primary { background: var(--color-primary); color: var(--color-text-inverse); border-color: transparent; }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-ghost { background: transparent; box-shadow: none; }
+    .hero { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: var(--space-4); margin-bottom: var(--space-4); }
+    .panel { background: color-mix(in srgb, var(--color-surface) 92%, transparent); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); backdrop-filter: blur(12px); }
+    .hero-copy { padding: var(--space-8); }
+    .eyebrow { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-primary); font-weight: 700; }
+    h1 { font-size: var(--text-xl); line-height: 1.05; margin: var(--space-3) 0 var(--space-4); max-width: 14ch; }
+    .lede { color: var(--color-text-muted); max-width: 56ch; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin-top: var(--space-6); }
+    .stat { padding: var(--space-4); background: var(--color-surface-2); border-radius: var(--radius-lg); border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+    .stat strong { display: block; font-size: var(--text-lg); font-variant-numeric: tabular-nums; }
+    .stat span { color: var(--color-text-muted); font-size: var(--text-xs); }
+    .scan-card { padding: var(--space-6); display: grid; gap: var(--space-4); align-content: start; }
+    .status-pill { display: inline-flex; align-items: center; gap: var(--space-2); border-radius: var(--radius-full); padding: var(--space-2) var(--space-3); font-size: var(--text-xs); background: var(--color-surface-offset); color: var(--color-text-muted); }
+    .camera { position: relative; border-radius: var(--radius-xl); overflow: hidden; min-height: 280px; background: #000; border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
+    #scanner-video { width: 100%; height: 100%; object-fit: cover; display: none; background: #000; }
+    .camera-placeholder { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: var(--space-6); color: #f4f4f4; background: linear-gradient(135deg, #0c0c0c, #1b1b1b); }
+    .scan-line { width: 70%; height: 2px; background: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 55%, transparent); animation: scan 2s ease-in-out infinite; }
+    @keyframes scan { 0%, 100% { transform: translateY(-80px); opacity: .3; } 50% { transform: translateY(80px); opacity: 1; } }
+    .scanner-controls, .inline-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: var(--space-4); align-items: start; }
+    .section { padding: var(--space-5); }
+    .section h2 { margin: 0 0 var(--space-2); font-size: var(--text-lg); }
+    .section p.section-note { color: var(--color-text-muted); font-size: var(--text-sm); margin: 0 0 var(--space-4); }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-3); }
+    .field { display: grid; gap: var(--space-2); }
+    .field label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); font-weight: 700; }
+    .field input, .field textarea { width: 100%; min-height: 44px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-surface-2); color: var(--color-text); padding: 0 var(--space-3); }
+    .field textarea { min-height: 100px; padding-block: var(--space-3); resize: vertical; }
+    .lookup-result { margin-top: var(--space-4); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface-2); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); display: grid; gap: var(--space-3); }
+    .lookup-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .tag { font-size: var(--text-xs); border-radius: var(--radius-full); padding: var(--space-1) var(--space-3); background: var(--color-primary-highlight); color: var(--color-primary); }
+    .search-row { display: grid; grid-template-columns: 1fr auto; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .table-wrap { overflow: auto; border-radius: var(--radius-lg); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
+    table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+    th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); vertical-align: top; }
+    th { position: sticky; top: 0; background: var(--color-surface); z-index: 1; font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); }
+    tbody tr:hover { background: color-mix(in srgb, var(--color-primary) 4%, var(--color-surface)); }
+    .row-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+    .price { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .muted { color: var(--color-text-muted); }
+    .empty { text-align: center; padding: var(--space-8); color: var(--color-text-muted); }
+    .notice { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-muted); }
+    .toast-stack { position: fixed; right: var(--space-4); bottom: var(--space-4); display: grid; gap: var(--space-2); z-index: 999; }
+    .toast { min-width: 260px; max-width: 360px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); color: var(--color-text-inverse); box-shadow: var(--shadow-lg); }
+    .toast.success { background: var(--color-success); }
+    .toast.error { background: var(--color-error); }
+    .toast.info { background: var(--color-primary); }
+    dialog { border: none; border-radius: var(--radius-xl); padding: 0; width: min(720px, calc(100vw - 2rem)); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-lg); }
+    dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+    .dialog-body { padding: var(--space-5); display: grid; gap: var(--space-4); }
+    .help-list { margin: 0; padding-left: 1.2rem; color: var(--color-text-muted); }
+    @media (max-width: 980px) { .hero, .grid { grid-template-columns: 1fr; } .hero-copy { padding: var(--space-6); } .field-grid { grid-template-columns: 1fr; } .stats { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .app { padding: var(--space-3); } .topbar { align-items: flex-start; flex-direction: column; } .search-row { grid-template-columns: 1fr; } .toolbar { width: 100%; } .toolbar .btn { flex: 1 1 calc(50% - .5rem); } .row-actions { flex-direction: column; } }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="app">
+    <header class="topbar" aria-label="Application header">
+      <div class="brand" aria-label="Vinyl Barcode Scanner brand">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Circular record logo">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="6"></circle>
+          <circle cx="32" cy="32" r="7" fill="currentColor"></circle>
+          <path d="M32 6a26 26 0 0 1 0 52" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"></path>
+        </svg>
+        <div class="brand-text">
+          <strong>Vinyl Scan Vault</strong>
+          <span>Barcode scan, lookup and local collection log</span>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Switch to dark mode">🌙</button>
+        <button class="btn" type="button" id="open-help">How it works</button>
+        <label class="btn" for="import-file">Import JSON</label>
+        <input id="import-file" type="file" accept="application/json" hidden />
+        <button class="btn" type="button" id="export-json">Export JSON</button>
+        <button class="btn" type="button" id="export-csv">Export CSV</button>
+        <button class="btn btn-primary" type="button" id="clear-all">Clear all</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <article class="panel hero-copy">
+          <div class="eyebrow">Discogs-powered workflow</div>
+          <h1>Scan a record barcode, estimate value, and keep the data in your browser.</h1>
+          <p class="lede">This version adds an iPhone and iPad friendly scan-photo fallback and fixes Discogs value extraction so the estimated price now fills when stats are returned.</p>
+          <div class="stats" aria-label="Summary stats">
+            <div class="stat"><strong id="total-items">0</strong><span>Saved records</span></div>
+            <div class="stat"><strong id="total-value">£0.00</strong><span>Estimated total</span></div>
+            <div class="stat"><strong id="last-scan">None</strong><span>Most recent scan</span></div>
+          </div>
+        </article>
+        <aside class="panel scan-card" aria-label="Scanner controls">
+          <div class="status-pill" id="scanner-status">Scanner idle</div>
+          <div class="camera">
+            <video id="scanner-video" playsinline muted></video>
+            <div class="camera-placeholder" id="camera-placeholder">
+              <div>
+                <div class="scan-line" aria-hidden="true"></div>
+                <p>Use live scan where supported, or use Scan photo on iPhone and iPad for a more reliable fallback.</p>
+              </div>
+            </div>
+          </div>
+          <div class="scanner-controls">
+            <button class="btn btn-primary" id="start-scan" type="button">Start camera scan</button>
+            <button class="btn" id="stop-scan" type="button">Stop camera</button>
+            <label class="btn" for="scan-image">Scan photo</label>
+            <input id="scan-image" type="file" accept="image/*" capture="environment" hidden />
+            <button class="btn" id="lookup-manual" type="button">Lookup typed barcode</button>
+          </div>
+          <p class="notice">Tip: on iOS, live barcode detection support is inconsistent, so taking or choosing a photo of the barcode is often the most reliable path.</p>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <article class="panel section" aria-labelledby="lookup-heading">
+          <h2 id="lookup-heading">Lookup and log</h2>
+          <p class="section-note">Review the Discogs result, adjust the details if needed, then save the scan into local storage.</p>
+          <form id="record-form">
+            <div class="field-grid">
+              <div class="field"><label for="barcode">Barcode</label><input id="barcode" name="barcode" inputmode="numeric" autocomplete="off" placeholder="e.g. 5099969946817" required /></div>
+              <div class="field"><label for="estimated-value">Estimated value</label><input id="estimated-value" name="estimatedValue" type="number" min="0" step="0.01" placeholder="0.00" /></div>
+              <div class="field"><label for="artist">Artist</label><input id="artist" name="artist" placeholder="Artist name" /></div>
+              <div class="field"><label for="title">Title</label><input id="title" name="title" placeholder="Release title" /></div>
+              <div class="field"><label for="year">Year</label><input id="year" name="year" placeholder="Year" /></div>
+              <div class="field"><label for="format">Format</label><input id="format" name="format" placeholder="Vinyl, LP, Album" /></div>
+            </div>
+            <div class="field" style="margin-top: var(--space-3);"><label for="notes">Notes</label><textarea id="notes" name="notes" placeholder="Condition, pressing notes, shelf location, or anything else"></textarea></div>
+            <div class="inline-actions" style="margin-top: var(--space-4);">
+              <button class="btn btn-primary" type="submit" id="save-record">Save record</button>
+              <button class="btn" type="button" id="new-record">Reset form</button>
+            </div>
+          </form>
+          <div class="lookup-result" id="lookup-result" hidden>
+            <div>
+              <strong id="lookup-title">No lookup yet</strong>
+              <p class="muted" id="lookup-description">Lookup details from Discogs will appear here.</p>
+            </div>
+            <div class="lookup-meta" id="lookup-tags"></div>
+            <div class="inline-actions">
+              <button class="btn" type="button" id="use-discogs-data">Use Discogs data</button>
+              <a class="btn btn-ghost" id="discogs-link" href="#" target="_blank" rel="noopener noreferrer">Open release</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel section" aria-labelledby="collection-heading">
+          <h2 id="collection-heading">Saved collection</h2>
+          <p class="section-note">Search, review, export, import, and remove your saved scans. Data stays in this browser unless you export it.</p>
+          <div class="search-row">
+            <input id="search-input" type="search" placeholder="Search barcode, artist, title or format" aria-label="Search saved records" />
+            <div class="inline-actions">
+              <button class="btn" type="button" id="sort-date">Newest first</button>
+              <button class="btn" type="button" id="sort-value">Highest value</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Record</th><th>Barcode</th><th>Value</th><th>Scanned</th><th>Actions</th></tr></thead>
+              <tbody id="records-body"><tr><td colspan="5" class="empty">No records saved yet.</td></tr></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="help-dialog">
+    <div class="dialog-body">
+      <div style="display:flex;justify-content:space-between;gap:1rem;align-items:start;">
+        <div>
+          <h2 style="margin:0 0 .5rem;">How this app works</h2>
+          <p class="muted" style="margin:0;">You can use it immediately as a local-first prototype.</p>
+        </div>
+        <button class="btn" id="close-help" type="button">Close</button>
+      </div>
+      <ol class="help-list">
+        <li>Start the camera scanner, type a barcode manually, or use Scan photo.</li>
+        <li>The app queries Discogs search by barcode and estimates value from release sale statistics when they are available.</li>
+        <li>Review and optionally edit the fetched metadata.</li>
+        <li>Save the record to local browser storage.</li>
+        <li>Export the collection as JSON or CSV, then import it later on the same or another browser.</li>
+      </ol>
+      <p class="muted" style="margin:0;">Note: public Discogs endpoints are rate-limited. For heavier use, add a personal token in the code and send it as an Authorization header.</p>
+    </div>
+  </dialog>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'vinyl-scan-vault-records';
+      const state = { records: [], currentLookup: null, stream: null, scanLoop: null, sortMode: 'date', searchTerm: '' };
+
+      const els = {
+        html: document.documentElement,
+        themeToggle: document.querySelector('[data-theme-toggle]'),
+        form: document.getElementById('record-form'),
+        barcode: document.getElementById('barcode'),
+        estimatedValue: document.getElementById('estimated-value'),
+        artist: document.getElementById('artist'),
+        title: document.getElementById('title'),
+        year: document.getElementById('year'),
+        format: document.getElementById('format'),
+        notes: document.getElementById('notes'),
+        lookupResult: document.getElementById('lookup-result'),
+        lookupTitle: document.getElementById('lookup-title'),
+        lookupDescription: document.getElementById('lookup-description'),
+        lookupTags: document.getElementById('lookup-tags'),
+        discogsLink: document.getElementById('discogs-link'),
+        useDiscogsData: document.getElementById('use-discogs-data'),
+        totalItems: document.getElementById('total-items'),
+        totalValue: document.getElementById('total-value'),
+        lastScan: document.getElementById('last-scan'),
+        recordsBody: document.getElementById('records-body'),
+        searchInput: document.getElementById('search-input'),
+        scannerStatus: document.getElementById('scanner-status'),
+        scannerVideo: document.getElementById('scanner-video'),
+        cameraPlaceholder: document.getElementById('camera-placeholder'),
+        startScan: document.getElementById('start-scan'),
+        stopScan: document.getElementById('stop-scan'),
+        scanImage: document.getElementById('scan-image'),
+        lookupManual: document.getElementById('lookup-manual'),
+        newRecord: document.getElementById('new-record'),
+        exportJson: document.getElementById('export-json'),
+        exportCsv: document.getElementById('export-csv'),
+        importFile: document.getElementById('import-file'),
+        clearAll: document.getElementById('clear-all'),
+        sortDate: document.getElementById('sort-date'),
+        sortValue: document.getElementById('sort-value'),
+        helpDialog: document.getElementById('help-dialog'),
+        openHelp: document.getElementById('open-help'),
+        closeHelp: document.getElementById('close-help'),
+        toastStack: document.getElementById('toast-stack')
+      };
+
+      const supportsBarcodeDetector = 'BarcodeDetector' in window;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      let detector = null;
+      if (supportsBarcodeDetector) {
+        try { detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] }); } catch (error) { detector = null; }
+      }
+
+      function initTheme() {
+        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(dark ? 'dark' : 'light');
+        els.themeToggle.addEventListener('click', () => applyTheme(els.html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+      }
+      function applyTheme(theme) {
+        els.html.setAttribute('data-theme', theme);
+        els.themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        els.themeToggle.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
+      }
+      function loadRecords() {
+        try { const raw = localStorage.getItem(STORAGE_KEY); state.records = raw ? JSON.parse(raw) : []; }
+        catch (error) { state.records = []; showToast('Could not read saved data from this browser.', 'error'); }
+      }
+      function saveRecords() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records)); }
+      function formatCurrency(value) { return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(Number(value || 0)); }
+      function formatDate(value) { return value ? new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '—'; }
+      function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        els.toastStack.appendChild(toast);
+        setTimeout(() => toast.remove(), 3200);
+      }
+      function updateStats() {
+        els.totalItems.textContent = String(state.records.length);
+        els.totalValue.textContent = formatCurrency(state.records.reduce((sum, item) => sum + Number(item.estimatedValue || 0), 0));
+        els.lastScan.textContent = state.records.length ? new Date(state.records[0].savedAt).toLocaleDateString('en-GB') : 'None';
+      }
+      function filteredRecords() {
+        const search = state.searchTerm.trim().toLowerCase();
+        let items = [...state.records];
+        if (search) items = items.filter(item => [item.barcode, item.artist, item.title, item.format, item.year, item.notes].some(v => String(v || '').toLowerCase().includes(search)));
+        items.sort(state.sortMode === 'value' ? (a, b) => Number(b.estimatedValue || 0) - Number(a.estimatedValue || 0) : (a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+        return items;
+      }
+      function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char])); }
+      function renderTable() {
+        const items = filteredRecords();
+        if (!items.length) { els.recordsBody.innerHTML = '<tr><td colspan="5" class="empty">No matching records found.</td></tr>'; updateStats(); return; }
+        els.recordsBody.innerHTML = items.map(item => `
+          <tr>
+            <td><strong>${escapeHtml(item.artist || 'Unknown artist')} — ${escapeHtml(item.title || 'Untitled release')}</strong><br /><span class="muted">${escapeHtml(item.format || 'Format unknown')} ${item.year ? `· ${escapeHtml(item.year)}` : ''}</span></td>
+            <td>${escapeHtml(item.barcode || '—')}</td>
+            <td class="price">${formatCurrency(item.estimatedValue)}</td>
+            <td><span class="muted">${formatDate(item.savedAt)}</span></td>
+            <td><div class="row-actions"><button class="btn btn-ghost" type="button" data-action="edit" data-id="${item.id}">Edit</button><button class="btn btn-ghost" type="button" data-action="delete" data-id="${item.id}">Delete</button></div></td>
+          </tr>`).join('');
+        updateStats();
+      }
+      function resetForm() { els.form.reset(); state.currentLookup = null; els.lookupResult.hidden = true; }
+      function fillFormFromRecord(record) {
+        els.barcode.value = record.barcode || '';
+        els.estimatedValue.value = record.estimatedValue ?? '';
+        els.artist.value = record.artist || '';
+        els.title.value = record.title || '';
+        els.year.value = record.year || '';
+        els.format.value = record.format || '';
+        els.notes.value = record.notes || '';
+      }
+      function inferArtist(result) {
+        if (Array.isArray(result?.artist)) return result.artist.join(', ');
+        if (typeof result?.title === 'string' && result.title.includes(' - ')) return result.title.split(' - ')[0];
+        return result?.artist || '';
+      }
+      async function lookupBarcode(barcode) {
+        if (!barcode) { showToast('Enter a barcode before lookup.', 'error'); return; }
+        els.lookupManual.disabled = true;
+        els.lookupManual.textContent = 'Looking up…';
+        try {
+          const searchUrl = `https://api.discogs.com/database/search?barcode=${encodeURIComponent(barcode)}&type=release&per_page=10`;
+          const searchResponse = await fetch(searchUrl, { headers: { 'Accept': 'application/json', 'User-Agent': 'VinylScanVault/1.0' } });
+          if (!searchResponse.ok) throw new Error('Discogs search failed');
+          const searchData = await searchResponse.json();
+          const result = (searchData.results || []).find(item => Array.isArray(item.barcode) && item.barcode.includes(barcode)) || (searchData.results || [])[0];
+          if (!result) throw new Error('No Discogs match found');
+
+          let estimatedValue = '';
+          let stats = null;
+          if (result.id) {
+            const statsResponse = await fetch(`https://api.discogs.com/releases/${result.id}/stats`, { headers: { 'Accept': 'application/json', 'User-Agent': 'VinylScanVault/1.0' } });
+            if (statsResponse.ok) {
+              stats = await statsResponse.json();
+              const lowestPrice = stats?.lowest_price?.value ?? stats?.lowest_price;
+              const medianPrice = stats?.median_price?.value ?? stats?.median_price;
+              const suggestedPrice = lowestPrice ?? medianPrice ?? '';
+              estimatedValue = suggestedPrice !== '' && Number.isFinite(Number(suggestedPrice)) ? Number(suggestedPrice) : '';
+            }
+          }
+
+          state.currentLookup = {
+            barcode,
+            title: result.title || '',
+            artist: inferArtist(result),
+            year: result.year || '',
+            format: Array.isArray(result.format) ? result.format.join(', ') : (result.format || ''),
+            estimatedValue,
+            uri: result.uri ? `https://www.discogs.com${result.uri}` : (result.resource_url || '#'),
+            country: result.country || '',
+            label: Array.isArray(result.label) ? result.label.join(', ') : (result.label || ''),
+            stats
+          };
+          renderLookup();
+          fillFormFromRecord(state.currentLookup);
+          showToast('Discogs match loaded.', 'success');
+        } catch (error) {
+          console.error(error);
+          showToast(error.message || 'Lookup failed.', 'error');
+        } finally {
+          els.lookupManual.disabled = false;
+          els.lookupManual.textContent = 'Lookup typed barcode';
+        }
+      }
+      async function scanFromImage(file) {
+        if (!file) return;
+        if (!detector) { showToast('Image barcode scanning is not supported in this browser. Type the barcode manually.', 'error'); return; }
+        try {
+          const bitmap = await createImageBitmap(file);
+          const results = await detector.detect(bitmap);
+          bitmap.close?.();
+          const hit = results.find(code => code.rawValue);
+          if (!hit?.rawValue) throw new Error('No barcode found in the selected image.');
+          els.barcode.value = hit.rawValue;
+          showToast(`Barcode detected from image: ${hit.rawValue}`, 'success');
+          await lookupBarcode(hit.rawValue);
+        } catch (error) {
+          console.error(error);
+          showToast(error.message || 'Image scan failed.', 'error');
+        }
+      }
+      function renderLookup() {
+        if (!state.currentLookup) { els.lookupResult.hidden = true; return; }
+        const item = state.currentLookup;
+        els.lookupResult.hidden = false;
+        els.lookupTitle.textContent = item.title || 'Discogs result';
+        els.lookupDescription.textContent = `${item.artist || 'Unknown artist'}${item.year ? ` · ${item.year}` : ''}${item.label ? ` · ${item.label}` : ''}`;
+        els.lookupTags.innerHTML = [item.format ? `<span class="tag">${escapeHtml(item.format)}</span>` : '', item.country ? `<span class="tag">${escapeHtml(item.country)}</span>` : '', item.estimatedValue !== '' ? `<span class="tag">Est. ${formatCurrency(item.estimatedValue)}</span>` : '<span class="tag">No sale stat</span>'].join('');
+        els.discogsLink.href = item.uri || '#';
+      }
+      function buildRecordFromForm(existingId = null) {
+        return { id: existingId || crypto.randomUUID(), barcode: els.barcode.value.trim(), estimatedValue: Number(els.estimatedValue.value || 0), artist: els.artist.value.trim(), title: els.title.value.trim(), year: els.year.value.trim(), format: els.format.value.trim(), notes: els.notes.value.trim(), sourceUrl: state.currentLookup?.uri || '', savedAt: new Date().toISOString() };
+      }
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob); const link = document.createElement('a');
+        link.href = url; link.download = filename; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+      }
+      function exportJson() { triggerDownload(new Blob([JSON.stringify(state.records, null, 2)], { type: 'application/json' }), `vinyl-scan-vault-${new Date().toISOString().slice(0, 10)}.json`); }
+      function csvEscape(value) { const text = String(value ?? ''); return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text; }
+      function exportCsv() {
+        const headers = ['id', 'barcode', 'artist', 'title', 'year', 'format', 'estimatedValue', 'notes', 'sourceUrl', 'savedAt'];
+        const rows = state.records.map(item => headers.map(key => csvEscape(item[key])));
+        triggerDownload(new Blob([[headers.join(','), ...rows.map(row => row.join(','))].join('\n')], { type: 'text/csv;charset=utf-8' }), `vinyl-scan-vault-${new Date().toISOString().slice(0, 10)}.csv`);
+      }
+      async function startScanner() {
+        if (!navigator.mediaDevices?.getUserMedia) { showToast('Camera access is not available in this browser.', 'error'); return; }
+        if (!detector) { showToast('Live camera scanning is not supported here. Use Scan photo or manual entry instead.', 'error'); return; }
+        if (isIOS) showToast('On iPhone and iPad, use Scan photo for the most reliable barcode scan.', 'info');
+        try {
+          state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+          els.scannerVideo.srcObject = state.stream;
+          await els.scannerVideo.play();
+          els.scannerVideo.style.display = 'block';
+          els.cameraPlaceholder.hidden = true;
+          els.scannerStatus.textContent = 'Camera active — point at barcode';
+          scanFrame();
+        } catch (error) {
+          console.error(error);
+          showToast('Could not start the camera scanner.', 'error');
+        }
+      }
+      function stopScanner() {
+        if (state.scanLoop) cancelAnimationFrame(state.scanLoop);
+        if (state.stream) state.stream.getTracks().forEach(track => track.stop());
+        state.scanLoop = null; state.stream = null;
+        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.scannerVideo.style.display = 'none';
+        els.cameraPlaceholder.hidden = false; els.scannerStatus.textContent = 'Scanner idle';
+      }
+      async function scanFrame() {
+        if (!detector || !state.stream) return;
+        try {
+          const barcodes = await detector.detect(els.scannerVideo);
+          const hit = barcodes.find(code => code.rawValue);
+          if (hit?.rawValue) { els.barcode.value = hit.rawValue; els.scannerStatus.textContent = `Detected ${hit.rawValue}`; stopScanner(); await lookupBarcode(hit.rawValue); return; }
+        } catch (error) { console.error(error); }
+        state.scanLoop = requestAnimationFrame(scanFrame);
+      }
+      function importJsonFile(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            if (!Array.isArray(parsed)) throw new Error('JSON file must contain an array of records.');
+            state.records = parsed.map(item => ({ id: item.id || crypto.randomUUID(), barcode: item.barcode || '', estimatedValue: Number(item.estimatedValue || 0), artist: item.artist || '', title: item.title || '', year: item.year || '', format: item.format || '', notes: item.notes || '', sourceUrl: item.sourceUrl || '', savedAt: item.savedAt || new Date().toISOString() }));
+            saveRecords(); renderTable(); showToast('Import complete.', 'success');
+          } catch (error) { showToast(error.message || 'Import failed.', 'error'); }
+        };
+        reader.readAsText(file);
+      }
+      function wireEvents() {
+        els.lookupManual.addEventListener('click', () => lookupBarcode(els.barcode.value.trim()));
+        els.form.addEventListener('submit', event => {
+          event.preventDefault();
+          const existingId = els.form.dataset.editingId || null;
+          const record = buildRecordFromForm(existingId);
+          if (!record.barcode) { showToast('Barcode is required.', 'error'); return; }
+          if (existingId) { state.records = state.records.map(item => item.id === existingId ? record : item); delete els.form.dataset.editingId; showToast('Record updated.', 'success'); }
+          else { state.records.unshift(record); showToast('Record saved locally.', 'success'); }
+          saveRecords(); renderTable(); resetForm();
+        });
+        els.useDiscogsData.addEventListener('click', () => { if (!state.currentLookup) return; fillFormFromRecord(state.currentLookup); showToast('Discogs data copied into the form.', 'info'); });
+        els.newRecord.addEventListener('click', () => { delete els.form.dataset.editingId; resetForm(); });
+        els.recordsBody.addEventListener('click', event => {
+          const button = event.target.closest('button[data-action]'); if (!button) return;
+          const record = state.records.find(item => item.id === button.dataset.id); if (!record) return;
+          if (button.dataset.action === 'delete') { state.records = state.records.filter(item => item.id !== record.id); saveRecords(); renderTable(); showToast('Record removed.', 'info'); }
+          if (button.dataset.action === 'edit') { fillFormFromRecord(record); els.form.dataset.editingId = record.id; window.scrollTo({ top: 0, behavior: 'smooth' }); showToast('Editing selected record.', 'info'); }
+        });
+        els.searchInput.addEventListener('input', event => { state.searchTerm = event.target.value; renderTable(); });
+        els.sortDate.addEventListener('click', () => { state.sortMode = 'date'; renderTable(); });
+        els.sortValue.addEventListener('click', () => { state.sortMode = 'value'; renderTable(); });
+        els.exportJson.addEventListener('click', exportJson);
+        els.exportCsv.addEventListener('click', exportCsv);
+        els.scanImage.addEventListener('change', async event => { const [file] = event.target.files || []; if (file) await scanFromImage(file); event.target.value = ''; });
+        els.importFile.addEventListener('change', event => { const [file] = event.target.files || []; if (file) importJsonFile(file); event.target.value = ''; });
+        els.clearAll.addEventListener('click', () => { if (!confirm('Delete every saved record from this browser?')) return; state.records = []; saveRecords(); renderTable(); showToast('All local records cleared.', 'info'); });
+        els.startScan.addEventListener('click', startScanner);
+        els.stopScan.addEventListener('click', stopScanner);
+        els.openHelp.addEventListener('click', () => els.helpDialog.showModal());
+        els.closeHelp.addEventListener('click', () => els.helpDialog.close());
+        els.helpDialog.addEventListener('click', event => {
+          const rect = els.helpDialog.getBoundingClientRect();
+          const inside = rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width;
+          if (!inside) els.helpDialog.close();
+        });
+      }
+      initTheme(); loadRecords(); renderTable(); wireEvents();
+    })();
+  </script>
+</body>
+</html>
