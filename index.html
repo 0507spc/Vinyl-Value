@@ -56,8 +56,8 @@
     .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-top:var(--space-6); }
     .stat,.mini-card { padding:var(--space-4); background:var(--color-surface-2); border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .stat strong,.mini-card strong { display:block; font-size:var(--text-lg); font-variant-numeric:tabular-nums; }
-    .camera { position:sticky; top:50px; z-index:5000; display:block; min-height:120px; width:100%; background:#000; border-radius:var(--radius-lg); overflow:hidden; min-height:150px; max-height:180px; width:100%; background:#000; border:2px solid var(--color-primary); }
-    .camera.scanning { position:sticky; top:50px; left:0; right:0; z-index:5001; height:100px; min-height:120px; width:100% !important; box-shadow:0 4px 20px rgba(0,0,0,0.5); background:#000; }
+    .camera { position:relative; z-index:5000; display:block; min-height:120px; width:100%; background:#000; border-radius:var(--radius-lg); overflow:hidden; min-height:150px; max-height:180px; width:100%; background:#000; border:2px solid var(--color-primary); }
+    .camera.scanning { position:fixed; top:60px; right:10px; z-index:9999; width:160px; height:120px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5); height:100px; min-height:120px; width:100% !important; box-shadow:0 4px 20px rgba(0,0,0,0.5); background:#000; }
       body.camera-active { }
     #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100% !important; height:100% !important; min-height:100px; object-fit:cover !important; }
     #interactive.viewport,#scanner-video { position:absolute; inset:0; display:block; width:100%; height:100%; }
@@ -501,7 +501,7 @@
           // Try without facingMode
           state.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         }
-        els.scannerVideo.srcObject = state.stream; els.scannerVideo.style.width='100%'; els.scannerVideo.style.height='100%'; await els.scannerVideo.play(); if(els.scannerVideo) { els.scannerVideo.style.display='block'; }  els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); 
+        els.scannerVideo.srcObject = state.stream; els.scannerVideo.style.width='100%'; els.scannerVideo.style.height='100%'; await els.scannerVideo.play(); if(els.scannerVideo) { els.scannerVideo.style.display='block'; }  els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); els.camera.style.position='fixed'; 
         const scanFrame = async () => {
           if(!state.stream || !detector || state.inDelay) { if(state.stream && detector && !state.inDelay) { state.scanLoop = requestAnimationFrame(scanFrame); } return; }
           try { 
@@ -543,7 +543,7 @@
       }
       function startQuaggaScanner(){
         return new Promise((resolve,reject)=>{
-          els.interactive.style.display='block'; if(els.interactive) { els.interactive.style.width='100%'; els.interactive.style.height='100%'; } els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); 
+          els.interactive.style.display='block'; if(els.interactive) { els.interactive.style.width='100%'; els.interactive.style.height='100%'; } els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); els.camera.style.position='fixed'; 
           Quagga.init({
             inputStream: { type:'LiveStream', target: els.interactive, constraints: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } } },
             locator: { patchSize:'medium', halfSample:true }, numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2, frequency: 15,
@@ -573,7 +573,7 @@
         if(state.stream){ state.stream.getTracks().forEach(track=>track.stop()); state.stream = null; }
         if(state.quaggaRunning && window.Quagga){ try { if(state.quaggaHandler) Quagga.offDetected(state.quaggaHandler); Quagga.stop(); } catch(e) {} }
         state.quaggaRunning = false; state.quaggaHandler = null;
-        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.classList.remove('hidden'); els.scannerStatus.textContent='Scanner idle'; els.camera.classList.remove('scanning'); 
+        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.classList.remove('hidden'); els.scannerStatus.textContent='Scanner idle'; els.camera.classList.remove('scanning'); els.camera.style.position='relative'; 
       }
       function buildRecord(existingId=null){
         return {
