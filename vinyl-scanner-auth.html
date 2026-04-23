@@ -99,7 +99,7 @@
       <div class="toolbar">
         <button class="btn btn-ghost" type="button" id="toggle-menu">☰</button>
       </div>
-      <div id="menu-panel" class="menu-panel" style="display:none; position:absolute; top:100%; right:0; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3); box-shadow:var(--shadow-lg); z-index:999;">
+      <div id="menu-panel" class="menu-panel" style="display:none; position:absolute; top:50px; right:10px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3); box-shadow:var(--shadow-lg); z-index:999;">
         <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Switch theme">🌙 Theme</button>
         <button class="btn" type="button" id="open-help">Help</button>
         <label class="btn" for="import-file">Import</label>
@@ -465,7 +465,7 @@
         els.discogsLink.href = item.uri || '#';
       }
       async function startNativeScanner(){
-        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
         els.scannerVideo.srcObject = state.stream; await els.scannerVideo.play(); els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning');
         const scanFrame = async () => {
           if(!state.stream || !detector) return;
@@ -598,7 +598,8 @@
         els.testToken.addEventListener('click', testDiscogsToken);
         els.toggleToken.addEventListener('click', ()=>{ const isPassword = els.discogsToken.type === 'password'; els.discogsToken.type = isPassword ? 'text' : 'password'; els.toggleToken.textContent = isPassword ? 'Hide' : 'Show'; });
         els.clearToken.addEventListener('click', ()=>{ localStorage.removeItem(TOKEN_KEY); els.discogsToken.value=''; updateTokenStatus(); showToast('Discogs token removed.','info'); });
-        document.getElementById('toggle-menu').addEventListener('click', ()=>{ const panel = document.getElementById('menu-panel'); panel.style.display = panel.style.display === 'none' ? 'block' : 'none'; });
+        document.getElementById('toggle-menu').addEventListener('click', (e)=>{ e.stopPropagation(); const panel = document.getElementById('menu-panel'); panel.style.display = panel.style.display === 'none' ? 'block' : 'none'; });
+        document.getElementById('open-token')?.addEventListener('click', ()=>{ document.getElementById('menu-panel').style.display = 'none'; document.getElementById('token-panel')?.scrollIntoView({behavior:'smooth'}); });
         document.addEventListener('click', e => { if(!e.target.closest('#menu-panel') && !e.target.closest('#toggle-menu')) document.getElementById('menu-panel').style.display = 'none'; });
         const debugEl = document.getElementById('debug-panel');
         const debugLog = document.getElementById('debug-log');
