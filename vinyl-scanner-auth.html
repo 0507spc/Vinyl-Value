@@ -36,7 +36,7 @@
     button,input,textarea { font:inherit; } button { cursor:pointer; } a { color:inherit; }
     .app { max-width:var(--content-wide); margin:0 auto; padding:var(--space-4); }
     .topbar,.toolbar,.scanner-controls,.inline-actions,.lookup-meta,.row-actions,.token-row,.price-grid { display:flex; flex-wrap:wrap; gap:var(--space-2); }
-    .topbar { align-items:center; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-4) 0; }
+    .topbar { align-items:center; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-2) 0; position:relative; }
     .brand { display:flex; align-items:center; gap:var(--space-3); font-weight:700; }
     .brand svg { width:42px; height:42px; color:var(--color-primary); }
     .brand-text strong { display:block; font-size:var(--text-sm); letter-spacing:.06em; text-transform:uppercase; }
@@ -99,7 +99,7 @@
       <div class="toolbar">
         <button class="btn btn-ghost" type="button" id="toggle-menu">☰</button>
       </div>
-      <div id="menu-panel" class="menu-panel" style="display:none; position:absolute; top:50px; right:10px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3); box-shadow:var(--shadow-lg); z-index:999;">
+      <div id="menu-panel" class="menu-panel" style="display:none; position:absolute; top:58px; right:8px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-2); box-shadow:var(--shadow-lg);">
         <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Switch theme">🌙 Theme</button>
         <button class="btn" type="button" id="open-help">Help</button>
         <label class="btn" for="import-file">Import</label>
@@ -465,7 +465,14 @@
         els.discogsLink.href = item.uri || '#';
       }
       async function startNativeScanner(){
-        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+          state.stream = stream;
+        } catch(e) {
+          console.error('Camera error:', e);
+          // Try without facingMode
+          state.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
         els.scannerVideo.srcObject = state.stream; await els.scannerVideo.play(); els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning');
         const scanFrame = async () => {
           if(!state.stream || !detector) return;
@@ -511,8 +518,15 @@
       }
       async function startScanner(){
         if(!navigator.mediaDevices?.getUserMedia){ showToast('Camera access is not available in this browser.','error'); return; }
-        try { if(detector){ await startNativeScanner(); } else if(window.Quagga){ await startQuaggaScanner(); showToast('Using Quagga2 live scanner fallback.','info'); } else { throw new Error('Scanner library did not load.'); } }
-        catch(error){ console.error(error); showToast('Could not start the camera scanner.','error'); stopScanner(); }
+        try { 
+          if(detector){ 
+            try { await startNativeScanner(); } 
+            catch(e) { console.warn('Native failed, trying Quagga:', e); throw e; } 
+          } 
+          if(!state.stream && window.Quagga){ await startQuaggaScanner(); showToast('Using Quagga2 scanner.','info'); } 
+          else if(!state.stream) { throw new Error('No scanner available'); }
+        }
+        catch(error){ console.error(error); console.error('Scanner error:', error); showToast('Could not start camera: ' + (error.message || 'check permissions'),'error'); stopScanner(); }
       }
       function stopScanner(){
         if(state.scanLoop) cancelAnimationFrame(state.scanLoop); state.scanLoop = null;
