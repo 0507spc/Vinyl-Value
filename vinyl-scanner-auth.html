@@ -487,12 +487,15 @@
                   els.scannerStatus.textContent = 'Found: ' + code;
                   els.barcode.value = code;
                   await lookupBarcode(code);
-                  return;
+                  // Continue scanning after lookup - don't return
                 }
               }
             }
-          } catch(e) {}
-          state.scanLoop = requestAnimationFrame(scanFrame);
+          } catch(e) { console.warn('Scan error:', e); }
+          // Always continue the loop
+          if (state.stream && detector) {
+            state.scanLoop = requestAnimationFrame(scanFrame);
+          }
         };
         scanFrame();
       }
@@ -506,7 +509,7 @@
           }, err => {
             if(err){ reject(err); return; }
             state.quaggaRunning = true; Quagga.start();
-            const onDetected = async data => { const code=data?.codeResult?.code; if(!code) return; Quagga.offDetected(onDetected); els.barcode.value=code; await lookupBarcode(code); };
+            const onDetected = async data => { const code=data?.codeResult?.code; if(code && code !== state.lastScanned && code.length >= 8) { state.lastScanned = code; els.barcode.value=code; await lookupBarcode(code); } };
             state.quaggaHandler = onDetected; Quagga.onDetected(onDetected); resolve();
           });
         });
