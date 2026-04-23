@@ -36,7 +36,7 @@
     button,input,textarea { font:inherit; } button { cursor:pointer; } a { color:inherit; }
     .app { max-width:var(--content-wide); margin:0 auto; padding:var(--space-4); }
     .topbar,.toolbar,.scanner-controls,.inline-actions,.lookup-meta,.row-actions,.token-row,.price-grid { display:flex; flex-wrap:wrap; gap:var(--space-2); }
-    .topbar { align-items:center; z-index:10000; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-3) var(--space-4); position:sticky; top:0; z-index:200; background:var(--color-bg); }
+    .topbar { align-items:center; z-index:10000; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-3) var(--space-4); position:sticky; top:0; background:var(--color-bg); }
     .brand { display:flex; align-items:center; gap:var(--space-3); font-weight:700; }
     .brand svg { width:42px; height:42px; color:var(--color-primary); }
     .brand-text strong { display:block; font-size:var(--text-sm); letter-spacing:.06em; text-transform:uppercase; }
@@ -56,10 +56,10 @@
     .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-top:var(--space-6); }
     .stat,.mini-card { padding:var(--space-4); background:var(--color-surface-2); border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .stat strong,.mini-card strong { display:block; font-size:var(--text-lg); font-variant-numeric:tabular-nums; }
-    .camera { position:relative; z-index:5000; display:block; min-height:120px; width:100%; background:#000; border-radius:var(--radius-lg); overflow:hidden; min-height:150px; max-height:180px; width:100%; background:#000; border:2px solid var(--color-primary); }
-    .camera.scanning { position:fixed; top:55px; left:0; z-index:100; height:60px; width:100%; height:80px; pointer-events:none; border-bottom:2px solid var(--color-primary); background:#000; }
+    .camera { position:sticky; top:0; z-index:500; min-height:150px; background:#000; border:2px solid var(--color-primary); border-radius:8px; }
+    .camera.scanning { position:sticky; top:0; z-index:501; min-height:150px; background:#000; border:2px solid var(--color-primary); border-radius:8px; }
       body.camera-active { }
-    #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100% !important; pointer-events:auto; height:100% !important; min-height:100px; object-fit:cover !important; }
+    #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100% !important;  height:100% !important; min-height:100px; object-fit:cover !important; }
     #interactive.viewport,#scanner-video { position:absolute; inset:0; display:block; width:100%; height:100%; }
     #interactive.viewport canvas { position:absolute; inset:0; }
     .camera-placeholder { position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:var(--space-6); color:#aaa; background:#111; border:2px dashed #444; }
@@ -501,7 +501,7 @@
           // Try without facingMode
           state.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         }
-        els.scannerVideo.srcObject = state.stream; els.scannerVideo.style.width='100%'; els.scannerVideo.style.height='100%'; await els.scannerVideo.play(); if(els.scannerVideo) { els.scannerVideo.style.display='block'; }  els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); els.camera.style.position='fixed'; 
+        els.scannerVideo.srcObject = state.stream; els.scannerVideo.style.width='100%'; els.scannerVideo.style.height='100%'; await els.scannerVideo.play(); if(els.scannerVideo) { els.scannerVideo.style.display='block'; }  els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); 
         const scanFrame = async () => {
           if(!state.stream || !detector || state.inDelay) { if(state.stream && detector && !state.inDelay) { state.scanLoop = requestAnimationFrame(scanFrame); } return; }
           try { 
@@ -543,7 +543,7 @@
       }
       function startQuaggaScanner(){
         return new Promise((resolve,reject)=>{
-          els.interactive.style.display='block'; if(els.interactive) { els.interactive.style.width='100%'; els.interactive.style.height='100%'; } els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); els.camera.style.position='fixed'; 
+          els.interactive.style.display='block'; if(els.interactive) { els.interactive.style.width='100%'; els.interactive.style.height='100%'; } els.cameraPlaceholder.style.display='none'; els.camera.style.display='block'; els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); 
           Quagga.init({
             inputStream: { type:'LiveStream', target: els.interactive, constraints: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } } },
             locator: { patchSize:'medium', halfSample:true }, numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2, frequency: 15,
@@ -573,7 +573,7 @@
         if(state.stream){ state.stream.getTracks().forEach(track=>track.stop()); state.stream = null; }
         if(state.quaggaRunning && window.Quagga){ try { if(state.quaggaHandler) Quagga.offDetected(state.quaggaHandler); Quagga.stop(); } catch(e) {} }
         state.quaggaRunning = false; state.quaggaHandler = null;
-        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.classList.remove('hidden'); els.scannerStatus.textContent='Scanner idle'; els.camera.classList.remove('scanning'); els.camera.style.position='relative'; 
+        els.scannerVideo.pause(); els.scannerVideo.srcObject = null; els.interactive.innerHTML=''; els.interactive.style.display='none'; els.cameraPlaceholder.classList.remove('hidden'); els.scannerStatus.textContent='Scanner idle'; els.camera.classList.remove('scanning'); 
       }
       function buildRecord(existingId=null){
         return {
