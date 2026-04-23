@@ -36,7 +36,7 @@
     button,input,textarea { font:inherit; } button { cursor:pointer; } a { color:inherit; }
     .app { max-width:var(--content-wide); margin:0 auto; padding:var(--space-4); }
     .topbar,.toolbar,.scanner-controls,.inline-actions,.lookup-meta,.row-actions,.token-row,.price-grid { display:flex; flex-wrap:wrap; gap:var(--space-2); }
-    .topbar { align-items:center; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-3) var(--space-4); position:sticky; top:0; z-index:3000; background:var(--color-bg); }
+    .topbar { align-items:center; justify-content:space-between; margin-bottom:var(--space-6); padding:var(--space-3) var(--space-4); position:sticky; top:0; z-index:100; background:var(--color-bg); }
     .brand { display:flex; align-items:center; gap:var(--space-3); font-weight:700; }
     .brand svg { width:42px; height:42px; color:var(--color-primary); }
     .brand-text strong { display:block; font-size:var(--text-sm); letter-spacing:.06em; text-transform:uppercase; }
@@ -57,9 +57,9 @@
     .stat,.mini-card { padding:var(--space-4); background:var(--color-surface-2); border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .stat strong,.mini-card strong { display:block; font-size:var(--text-lg); font-variant-numeric:tabular-nums; }
     .camera { position:sticky; top:0; z-index:1500; background:#000; top:0; z-index:3000; background:var(--color-bg); border-radius:var(--radius-lg); overflow:hidden; min-height:150px; max-height:180px; width:100%; background:#000; border:2px solid var(--color-primary); }
-    .camera.scanning { position:fixed !important; top:0 !important; left:0 !important; right:0 !important; z-index:99999 !important; height:120px !important; min-height:120px; width:100% !important; box-shadow:0 4px 20px rgba(0,0,0,0.5); background:#000; }
+    .camera.scanning { position:fixed; top:0; left:0; right:0; z-index:99999; height:100px; min-height:120px; width:100% !important; box-shadow:0 4px 20px rgba(0,0,0,0.5); background:#000; }
       body.camera-active { }
-    #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100%; height:100%; object-fit:cover; border-radius:var(--radius-lg); }
+    #scanner-video,#interactive.viewport video,#interactive.viewport canvas { width:100% !important; height:100% !important; min-height:100px; object-fit:cover !important; }
     #interactive.viewport,#scanner-video { position:absolute; inset:0; display:block; }
     #interactive.viewport canvas { position:absolute; inset:0; }
     .camera-placeholder { position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:var(--space-6); color:#aaa; background:#111; border:2px dashed #444; }
@@ -400,6 +400,12 @@
       }
       async function lookupBarcode(barcode){
         if(!barcode){ showToast('Enter a barcode before lookup.','error'); return; }
+        // Check for duplicate first - before any lookup
+        const existingRecord = state.records.find(r => r.barcode === barcode);
+        if(existingRecord) { 
+          showToast('Duplicate: ' + barcode, 'warn'); 
+          return; 
+        }
         const token = (localStorage.getItem(TOKEN_KEY) || '').trim();
         if(!token){ showToast('Save and test a Discogs token first.','warn'); return; }
         els.lookupManual.disabled = true; els.lookupManual.textContent = 'Looking up…';
@@ -491,7 +497,7 @@
           // Try without facingMode
           state.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         }
-        els.scannerVideo.srcObject = state.stream; await els.scannerVideo.play(); els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); 
+        els.scannerVideo.srcObject = state.stream; els.scannerVideo.style.width='100%'; els.scannerVideo.style.height='100%'; await els.scannerVideo.play(); els.cameraPlaceholder.classList.add('hidden'); els.scannerStatus.textContent='Scanning... (point at barcode)'; els.camera.classList.add('scanning'); 
         const scanFrame = async () => {
           if(!state.stream || !detector || state.inDelay) { if(state.stream && detector && !state.inDelay) { state.scanLoop = requestAnimationFrame(scanFrame); } return; }
           try { 
@@ -541,7 +547,7 @@
           }, err => {
             if(err){ reject(err); return; }
             state.quaggaRunning = true; Quagga.start();
-            const onDetected = async data => { const code=data?.codeResult?.code; if(code && code !== state.lastScanned && code.length >= 8 && !state.inDelay) { state.lastScanned = code; els.barcode.value=code; await lookupBarcode(code); } };
+            const onDetected = async data => { const code=data?.codeResult?.code; if(code && code !== state.lastScanned && code.length >= 8 && !state.inDelay) { state.lastScanned = code; els.barcode.value=code; await lookupBarcode(code); state.inDelay = true; const d=state.scanDelay||2; for(let i=d;i>0;i--){els.scannerStatus.textContent=\`Next scan in ${i}s\`; await new Promise(r=>setTimeout(r,1000));} els.scannerStatus.textContent='Scanning...'; state.inDelay=false; state.lastScanned=''; } }
             state.quaggaHandler = onDetected; Quagga.onDetected(onDetected); resolve();
           });
         });
